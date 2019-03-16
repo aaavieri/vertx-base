@@ -2,13 +2,15 @@ package com.yjl.vertx.base.com.verticle;
 
 import com.google.inject.*;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
-import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
 import com.yjl.vertx.base.com.factory.component.VertxResourceFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,10 +56,8 @@ public class InitVerticle extends AbstractVerticle {
 			})
 			.reduce(rootContext,
 				(injector, entry) -> {
-					System.out.println(injector);
-					System.out.println(entry);
 					Injector initModuleInjector = injector.createChildInjector(entry.getKey());
-					return injector.createChildInjector(entry.getValue().stream().map(annotation ->
+					return initModuleInjector.createChildInjector(entry.getValue().stream().map(annotation ->
 						initModuleInjector.getInstance(annotation.factoryClass())).peek(BaseComponentFactory::beforeConfigure)
 						.peek(factories::add)
 						.collect(Collectors.toList()));
@@ -68,7 +68,8 @@ public class InitVerticle extends AbstractVerticle {
 		List<BaseComponentFactory> otherFactories = this.initOtherFactory();
 		if (!otherFactories.isEmpty()) {
 			otherFactories.forEach(BaseComponentFactory::beforeConfigure);
-			context.createChildInjector(otherFactories);
+			context = context.createChildInjector(otherFactories);
+			ApplicationContext.setContext(context);
 			otherFactories.forEach(BaseComponentFactory::afterConfigure);
 		}
 
