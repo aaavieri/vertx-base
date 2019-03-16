@@ -1,0 +1,21 @@
+{
+  "app": {
+    "port": 4103
+  },
+  "databaseConfig": {
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "password": "yinjiaolong",
+    "database": "wwx",
+    "charset": "UTF8"
+  },
+  "logbackConfig": {
+    "file": "./var/log/wwx-mini-vertx.log",
+    "level": {
+      "root": "DEBUG",
+      "com.yjl.vertx.base": "DEBUG",
+      "com.yjl.vertx.base.test": "DEBUG"
+    }
+  }
+}
