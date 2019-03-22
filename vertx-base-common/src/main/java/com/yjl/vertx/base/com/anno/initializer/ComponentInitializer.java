@@ -1,6 +1,5 @@
 package com.yjl.vertx.base.com.anno.initializer;
 
-import com.yjl.vertx.base.com.anno.Order;
 import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
 import com.yjl.vertx.base.com.factory.component.CommonComponentFactory;
 
@@ -20,6 +19,4 @@ public @interface ComponentInitializer {
 	String[] value() default {};
 
 	boolean singleton() default true;
-
-	Order order() default @Order(1);
 }

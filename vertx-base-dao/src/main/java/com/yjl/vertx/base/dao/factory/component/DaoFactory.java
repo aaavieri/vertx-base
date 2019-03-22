@@ -1,6 +1,7 @@
 package com.yjl.vertx.base.dao.factory.component;
 
 import com.google.inject.Inject;
+import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.dao.anno.component.Dao;
@@ -10,6 +11,7 @@ import io.vertx.ext.sql.SQLClient;
 import java.lang.reflect.Proxy;
 import java.util.stream.Stream;
 
+@ComponentInitializer(factoryClass = MysqlSqlClientFactory.class)
 public class DaoFactory extends BaseAnnotationComponentFactory {
 
 	@Inject(optional = true)

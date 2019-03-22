@@ -32,7 +32,7 @@ public class RestRouteV1Factory extends BaseRestRouteFactory {
 				OrderUtil.getSortOrderDesc(method.getAnnotation(Order.class))
 			))
 			.forEachOrdered(method -> {
-				Object instance = ApplicationContext.getContext().getProvider(method.getDeclaringClass()).get();
+				Object instance = ApplicationContext.getInstance().getContext().getProvider(method.getDeclaringClass()).get();
 				RestRouteV1Handler routeHandler = method.getDeclaringClass().getAnnotation(RestRouteV1Handler.class);
 				try {
 					Handler<RoutingContext> methodHandler = ReflectionsUtil.autoCast(method.invoke(instance));

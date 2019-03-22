@@ -33,7 +33,7 @@ public class RestRouteV2Factory extends BaseRestRouteFactory {
 			OrderUtil.sortOrderDescFunc().applyAsInt(handleClass.getAnnotation(Order.class))
 		))
 		.forEachOrdered(handlerClass -> {
-			BaseRouteV2Handler handler = ApplicationContext.getContext().getProvider(handlerClass).get();
+			BaseRouteV2Handler handler = ApplicationContext.getInstance().getContext().getProvider(handlerClass).get();
 			RestRouteV2Handler restRouteV2Handler = handlerClass.getAnnotation(RestRouteV2Handler.class);
 			Stream.of(restRouteV2Handler.value()).forEach(restRouteMapping ->
 				this.bindOneRoute(restRouteMapping.value(), restRouteMapping, handler::handle, handler::handleFailure)

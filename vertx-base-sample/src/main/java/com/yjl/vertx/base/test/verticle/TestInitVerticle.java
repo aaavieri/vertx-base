@@ -1,15 +1,14 @@
 package com.yjl.vertx.base.test.verticle;
 
-import com.google.inject.*;
-import com.yjl.vertx.base.com.anno.Order;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
-import com.yjl.vertx.base.com.factory.component.SimpleSlf4jLogbackFactory;
 import com.yjl.vertx.base.com.verticle.InitVerticle;
 import com.yjl.vertx.base.dao.factory.component.DaoFactory;
-import com.yjl.vertx.base.dao.factory.component.MysqlSqlClientFactory;
-import com.yjl.vertx.base.test.component.Test2Service;
 import com.yjl.vertx.base.test.component.TestService;
+import com.yjl.vertx.base.test.handler.Test2Handler;
 import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -17,56 +16,40 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 @ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper")
 @ComponentInitializer(factoryClass = RestRouteV2Factory.class, value = {"com.yjl.vertx.base.test.handler2"})
 @ComponentInitializer("com.yjl.vertx.base.test.component")
-@ComponentInitializer(factoryClass = SimpleSlf4jLogbackFactory.class, order = @Order(0))
-@ComponentInitializer(factoryClass = MysqlSqlClientFactory.class, order = @Order(0))
+//@ComponentInitializer(factoryClass = SimpleSlf4jLogbackFactory.class)
+//@ComponentInitializer(factoryClass = MysqlSqlClientFactory.class)
 public class TestInitVerticle extends InitVerticle {
 
 	protected void afterInit(Injector context) {
-		context.getInstance(Test2Service.class).test();
+		System.out.println(context.getInstance(Test2Handler.class));
 	}
 
 	public static void main(String[] args) throws NoSuchFieldException {
-		Stream.of(TestInitVerticle.class.getMethods()).filter(method -> method.getName().equals("test"))
-			.findFirst().ifPresent(method -> {
-				System.out.println(method.getGenericReturnType());
-				Type argType = ((ParameterizedType)method.getGenericReturnType()).getActualTypeArguments()[0];
-				System.out.println(((Class)argType).getName());
-				System.out.println(argType.getClass());
-			});
-		Injector injector = Guice.createInjector().createChildInjector(new AbstractModule() {
-			@Override
-			protected void configure() {
-				this.install(new PrivateModule() {
-					@Override
-					protected void configure() {
-						this.bind(F1.class).asEagerSingleton();
-						this.bind(Integer.class).toInstance(9);
-						this.bind(JsonObject.class).annotatedWith(new ConfigImpl("test")).toInstance(new JsonObject().put("key", "test"));
-						this.expose(F1.class);
-					}
-				});
-				this.install(new PrivateModule() {
-					@Override
-					protected void configure() {
-						this.bind(F2.class).asEagerSingleton();
-						this.bind(Integer.class).toInstance(10);
-						this.expose(F2.class);
-					}
-				});
-			}
-		});
-		injector = injector.createChildInjector(injector.getInstance(F1.class))
-				.createChildInjector(injector.getInstance(F2.class));
-		System.out.println(injector.getProvider(HttpServer.class).get());
-		System.out.println(injector.getProvider(TestService.class).get());
+		List<Test> testList = new ArrayList<>();
+		Stream.of("a", "b", "c").map(new Test()::setS).peek(testList::add)
+			.map(Test::getS).forEach(System.out::print);
+		System.out.println();
+		testList.stream().map(Test::getS).forEach(System.out::print);
+	}
+
+	static class Test {
+		private String s;
+		public Test setS(String s) {
+			this.s = s;
+			return this;
+		}
+
+		public String getS() {
+			return this.s;
+		}
 	}
 
 	public Future<Map<String, Object>> test() {

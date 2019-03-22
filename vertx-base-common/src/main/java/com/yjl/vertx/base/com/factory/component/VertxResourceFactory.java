@@ -4,13 +4,11 @@ import com.yjl.vertx.base.com.factory.config.ConfigFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Accessors(fluent = true)
+@Data
 public class VertxResourceFactory extends BaseComponentFactory {
 
 	private Vertx vertx;

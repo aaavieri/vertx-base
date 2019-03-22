@@ -8,6 +8,8 @@ public abstract class BaseComponentFactory extends AbstractModule {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	public void stop() {}
+
 	public void beforeConfigure() {}
 
 	public abstract void configure();

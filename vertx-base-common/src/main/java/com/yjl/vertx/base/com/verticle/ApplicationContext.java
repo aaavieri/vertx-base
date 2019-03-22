@@ -1,16 +1,39 @@
 package com.yjl.vertx.base.com.verticle;
 
 import com.google.inject.Injector;
+import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
+import com.yjl.vertx.base.com.factory.family.FactoryFamily;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationContext {
 
-	private static Injector context = null;
+	private static ApplicationContext instance;
 
-	public static Injector getContext() {
-		return context;
+	private FactoryFamily factoryFamily;
+
+	public static ApplicationContext getInstance() {
+		if (instance == null) {
+			instance = new ApplicationContext();
+		}
+		return instance;
 	}
 
-	static void setContext(Injector injector) {
-		context = injector;
+	public void initContext(InitVerticle verticle) {
+		try {
+			this.factoryFamily = new FactoryFamily().initFamilyTree(verticle).initFamily();
+			this.factoryFamily.start();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Injector getContext() {
+		return this.factoryFamily.getInjector();
+	}
+
+	public BaseComponentFactory getRootFactory() {
+		return this.factoryFamily.getRootNode().nodeInstance();
 	}
 }
