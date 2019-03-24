@@ -28,12 +28,11 @@ public class RestRouteV2Factory extends BaseRestRouteFactory {
 			RestRouteV2Handler restRouteV2Handler = handler.getClass().getAnnotation(RestRouteV2Handler.class);
 			Order order = handler.getClass().getAnnotation(Order.class);
 			Handler<RoutingContext> methodHandler = handler::handle;
-			Handler<RoutingContext> failHandler = handler::handleFailure;
 
 			return Stream.of(restRouteV2Handler.value()).map(restRouteMapping ->
 				new HandlerWrapper().autoHandleError(restRouteMapping.autoHandleError()).regexp(restRouteMapping.regexp())
 					.method(restRouteMapping.method()).descript(restRouteMapping.descript()).url(restRouteMapping.value())
-					.handler(methodHandler).failHandler(failHandler).order(order == null ? Integer.MAX_VALUE : order.value())
+					.handler(methodHandler).order(order == null ? Integer.MAX_VALUE : order.value())
 			);
 		}).collect(Collectors.toList());
 	}

@@ -22,7 +22,5 @@ public class HandlerWrapper {
 
 	private Handler<RoutingContext> handler;
 
-	private Handler<RoutingContext> failHandler;
-
 	private int order;
 }

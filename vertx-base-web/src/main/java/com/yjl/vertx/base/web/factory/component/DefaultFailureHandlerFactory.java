@@ -1,18 +1,42 @@
-package com.yjl.vertx.base.web.factory.handler;
+package com.yjl.vertx.base.web.factory.component;
 
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.yjl.vertx.base.com.exception.FrameworkException;
+import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.web.exception.ApplicationException;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FailureHandlerFactory {
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
-	public static Handler<RoutingContext> getDefault() {
+public class DefaultFailureHandlerFactory extends BaseAnnotationComponentFactory {
+
+	@Override
+	public void configure() {
+		this.bind(TypeLiteral.get(new ParameterizedType() {
+
+			@Override
+			public Type[] getActualTypeArguments() {
+				return new Type[] {RoutingContext.class};
+			}
+
+			@Override
+			public Type getRawType() {
+				return Handler.class;
+			}
+
+			@Override
+			public Type getOwnerType() {
+				return null;
+			}
+		})).annotatedWith(Names.named("defaultFailureHandler")).toInstance(ReflectionsUtil.autoCast(this.getDefault()));
+	}
+
+	private Handler<RoutingContext> getDefault() {
 		return routingContext -> {
 			if (routingContext.failure() == null) {
 				routingContext.response().end(new JsonObject().put("errMsg", "unknown error occurred").put("success", false).put("errCode", 9).toBuffer());

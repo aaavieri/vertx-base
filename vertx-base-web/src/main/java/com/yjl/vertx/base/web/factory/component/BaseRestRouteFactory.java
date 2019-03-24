@@ -1,12 +1,11 @@
 package com.yjl.vertx.base.web.factory.component;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.yjl.vertx.base.com.anno.component.Config;
+import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
-import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
-import com.yjl.vertx.base.web.enumeration.RouteMethod;
-import com.yjl.vertx.base.web.factory.handler.FailureHandlerFactory;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -42,6 +41,10 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 	@Inject
 	@Config("app.port")
 	private int port = this.defaultPort();
+
+	@Inject
+	@Named("defaultFailureHandler")
+	private Handler<RoutingContext> defaultFailureHandler;
 
 	public void configure() {
 		HttpServer server = vertx.createHttpServer();
@@ -83,13 +86,12 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 			MethodHandle methodHandle = MethodHandles.publicLookup().findVirtual(this.router.getClass(), methodName, MethodType.methodType(Route.class, String.class));
 			Route route = ReflectionsUtil.autoCast(methodHandle.invoke(this.router, handlerWrapper.url()));
 			route.handler(handlerWrapper.handler());
-			if (handlerWrapper.failHandler() != null) {
-				route.failureHandler(handlerWrapper.failHandler());
-			} else if (handlerWrapper.autoHandleError()) {
-				route.failureHandler(FailureHandlerFactory.getDefault());
+			if (handlerWrapper.autoHandleError()) {
+				route.failureHandler(this.defaultFailureHandler);
 			}
 		} catch (Throwable throwable) {
-			throwable.printStackTrace();
+			this.getLogger().error(throwable.getMessage(), throwable);
+			throw new FrameworkException(throwable);
 		}
 	}
 }

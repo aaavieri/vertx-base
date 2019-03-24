@@ -1,15 +1,11 @@
 package com.yjl.vertx.base.web.factory.component;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.sun.tools.corba.se.idl.constExpr.Or;
 import com.yjl.vertx.base.com.anno.Order;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.exception.FrameworkException;
-import com.yjl.vertx.base.com.util.OrderUtil;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.com.util.StringUtil;
-import com.yjl.vertx.base.com.verticle.ApplicationContext;
 import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
 import com.yjl.vertx.base.web.anno.component.RestRouteV1Handler;
 import com.yjl.vertx.base.web.anno.handler.RestV1HandlerInject;
@@ -17,7 +13,6 @@ import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
