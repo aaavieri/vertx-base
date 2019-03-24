@@ -5,7 +5,9 @@ import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
+import com.yjl.vertx.base.web.enumeration.RouteMethod;
 import com.yjl.vertx.base.web.factory.handler.FailureHandlerFactory;
+import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -23,6 +25,8 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Comparator;
+import java.util.List;
 
 public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactory {
 
@@ -39,15 +43,14 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 	@Config("app.port")
 	private int port = this.defaultPort();
 
-	@Override
-	public void afterConfigure() {
+	public void configure() {
 		HttpServer server = vertx.createHttpServer();
 		this.router = Router.router(this.vertx);
 		this.router.route().handler(CookieHandler.create())
 			.handler(BodyHandler.create())
 			.produces("application/json;charset=UTF-8")
 			.handler(ResponseContentTypeHandler.create());
-		this.installRoute();
+		this.getHandlerWrapperList().stream().sorted(Comparator.comparingInt(HandlerWrapper::order)).forEach(this::bindOneRoute);
 		server.requestHandler(router).listen(this.getPort());
 	}
 
@@ -72,24 +75,17 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 		return checkResult;
 	}
 
-	protected abstract void installRoute();
+	protected abstract List<HandlerWrapper> getHandlerWrapperList();
 
-	protected void bindOneRoute(final String url, final RestRouteMapping routeMapping,
-								final Handler<RoutingContext> methodHandler) {
-		this.bindOneRoute(url, routeMapping, methodHandler, null);
-	}
-
-	protected void bindOneRoute(final String url, final RestRouteMapping routeMapping,
-								final Handler<RoutingContext> methodHandler,
-								final Handler<RoutingContext> failureHandler) {
-		String methodName = routeMapping.method().name().toLowerCase() + (routeMapping.regexp() ? "WithRegex" : "");
+	protected void bindOneRoute(final HandlerWrapper handlerWrapper) {
+		String methodName = handlerWrapper.method().name().toLowerCase() + (handlerWrapper.regexp() ? "WithRegex" : "");
 		try {
 			MethodHandle methodHandle = MethodHandles.publicLookup().findVirtual(this.router.getClass(), methodName, MethodType.methodType(Route.class, String.class));
-			Route route = ReflectionsUtil.autoCast(methodHandle.invoke(this.router, url));
-			route.handler(methodHandler);
-			if (failureHandler != null) {
-				route.failureHandler(failureHandler);
-			} else if (routeMapping.autoHandleError()) {
+			Route route = ReflectionsUtil.autoCast(methodHandle.invoke(this.router, handlerWrapper.url()));
+			route.handler(handlerWrapper.handler());
+			if (handlerWrapper.failHandler() != null) {
+				route.failureHandler(handlerWrapper.failHandler());
+			} else if (handlerWrapper.autoHandleError()) {
 				route.failureHandler(FailureHandlerFactory.getDefault());
 			}
 		} catch (Throwable throwable) {

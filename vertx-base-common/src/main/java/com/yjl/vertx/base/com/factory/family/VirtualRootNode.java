@@ -2,11 +2,11 @@ package com.yjl.vertx.base.com.factory.family;
 
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
-import lombok.EqualsAndHashCode;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
-@EqualsAndHashCode
+
 public class VirtualRootNode implements ComponentInitializer {
 
 	private Class<? extends BaseComponentFactory> rootFactoryClass;
@@ -33,5 +33,24 @@ public class VirtualRootNode implements ComponentInitializer {
 	@Override
 	public Class<? extends Annotation> annotationType() {
 		return ComponentInitializer.class;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ComponentInitializer)) {
+			return false;
+		} else {
+			ComponentInitializer other = (ComponentInitializer)obj;
+			return this.rootFactoryClass.equals(other.factoryClass())
+				&& Arrays.equals(this.value(), other.value())
+				&& this.singleton() == other.singleton();
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return 127 * "factoryClass".hashCode() ^ this.factoryClass().hashCode()
+			+ 127 * "singleton".hashCode() ^ Boolean.valueOf(this.singleton()).hashCode()
+			+ 127 * "value".hashCode() ^ Arrays.hashCode(this.value());
 	}
 }

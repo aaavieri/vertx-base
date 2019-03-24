@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 @ComponentInitializer(factoryClass = MysqlSqlClientFactory.class)
 public class DaoFactory extends BaseAnnotationComponentFactory {
 
-	@Inject(optional = true)
+	@Inject
 	private SQLClient sqlClient;
 
 	@Override

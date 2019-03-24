@@ -16,7 +16,7 @@ public class TestHandler extends BaseRouteV2Handler {
 	@Inject
 	private Vertx vertx;
 
-	@Inject(optional = true)
+	@Inject
 	private WxUserMapper wxUserMapper;
 
 	@Override

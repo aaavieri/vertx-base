@@ -5,10 +5,12 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
+import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;
 import com.yjl.vertx.base.com.verticle.InitVerticle;
 import com.yjl.vertx.base.dao.factory.component.DaoFactory;
 import com.yjl.vertx.base.test.component.TestService;
 import com.yjl.vertx.base.test.handler.Test2Handler;
+import com.yjl.vertx.base.web.factory.component.RestHandlerV2Factory;
 import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -21,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper")
-@ComponentInitializer(factoryClass = RestRouteV2Factory.class, value = {"com.yjl.vertx.base.test.handler2"})
+@ComponentInitializer(factoryClass = RestRouteV2Factory.class)
+@OverrideDependency(value = @ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.vertx.base.test.handler2"),
+	customInclude = @ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper"))
+//@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = {"com.yjl.vertx.base.test.handler2"})
 @ComponentInitializer("com.yjl.vertx.base.test.component")
 //@ComponentInitializer(factoryClass = SimpleSlf4jLogbackFactory.class)
 //@ComponentInitializer(factoryClass = MysqlSqlClientFactory.class)

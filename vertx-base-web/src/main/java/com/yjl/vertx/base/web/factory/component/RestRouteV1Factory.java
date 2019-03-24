@@ -1,51 +1,53 @@
 package com.yjl.vertx.base.web.factory.component;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.sun.tools.corba.se.idl.constExpr.Or;
 import com.yjl.vertx.base.com.anno.Order;
+import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
+import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.util.OrderUtil;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.com.verticle.ApplicationContext;
-import com.yjl.vertx.base.web.anno.component.RestRouteV1Handler;
 import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
+import com.yjl.vertx.base.web.anno.component.RestRouteV1Handler;
+import com.yjl.vertx.base.web.anno.handler.RestV1HandlerInject;
+import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@ComponentInitializer(factoryClass = RestHandlerV1Factory.class)
 public class RestRouteV1Factory extends BaseRestRouteFactory {
 
-	private List<Class<?>> handlerList;
+	@Inject
+	@RestV1HandlerInject
+	private Set<Object> handlers;
 
 	@Override
-	public void configure() {
-		this.handlerList = Stream.of(this.metaData.value()).flatMap(packageName -> ReflectionsUtil.getClassesByAnnotation(packageName, RestRouteV1Handler.class).stream())
-			.peek(clazz -> this.bind(clazz).asEagerSingleton()).collect(Collectors.toList());
-	}
-
-	protected void installRoute() {
-		this.handlerList.stream().flatMap(clazz -> ReflectionsUtil.getPublicMethods(clazz, RestRouteMapping.class, Handler.class).stream())
-			.filter(this::checkGenericInfo)
-			.sorted(Comparator.comparingInt(method ->
-				OrderUtil.getSortOrderDesc(method.getAnnotation(Order.class))
-			))
-			.forEachOrdered(method -> {
-				Object instance = ApplicationContext.getInstance().getContext().getProvider(method.getDeclaringClass()).get();
-				RestRouteV1Handler routeHandler = method.getDeclaringClass().getAnnotation(RestRouteV1Handler.class);
-				try {
-					Handler<RoutingContext> methodHandler = ReflectionsUtil.autoCast(method.invoke(instance));
-					RestRouteMapping routeMapping = method.getAnnotation(RestRouteMapping.class);
-					this.bindRoute(routeHandler, routeMapping, methodHandler);
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			});
-	}
-
-	private void bindRoute(final RestRouteV1Handler routeHandler, final RestRouteMapping routeMapping, final Handler<RoutingContext> methodHandler) {
-		String url = StringUtil.concatPath(routeHandler.value(), routeMapping.value());
-		this.bindOneRoute(url, routeMapping, methodHandler);
+	protected List<HandlerWrapper> getHandlerWrapperList() {
+		return this.handlers.stream().flatMap(handler ->
+			ReflectionsUtil.getPublicMethods(handler.getClass(), RestRouteMapping.class, Handler.class).stream()
+				.filter(this::checkGenericInfo)
+				.map(method -> {
+					RestRouteV1Handler routeHandler = method.getDeclaringClass().getAnnotation(RestRouteV1Handler.class);
+					try {
+						Handler<RoutingContext> methodHandler = ReflectionsUtil.autoCast(method.invoke(handler));
+						RestRouteMapping routeMapping = method.getAnnotation(RestRouteMapping.class);
+						Order order = method.getAnnotation(Order.class);
+						return new HandlerWrapper().autoHandleError(routeMapping.autoHandleError()).regexp(routeMapping.regexp())
+							.method(routeMapping.method()).descript(routeMapping.descript()).url(StringUtil.concatPath(routeHandler.value(), routeMapping.value()))
+							.handler(methodHandler).order(order == null ? Integer.MAX_VALUE : order.value());
+					} catch (Throwable e) {
+						this.getLogger().error(e.getMessage(), e);
+						throw new FrameworkException(e);
+					}
+				})
+		).collect(Collectors.toList());
 	}
 }
