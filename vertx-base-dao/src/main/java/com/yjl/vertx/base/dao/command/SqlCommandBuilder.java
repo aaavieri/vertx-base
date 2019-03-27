@@ -1,17 +1,23 @@
-package com.yjl.vertx.base.dao.factory.dao;
+package com.yjl.vertx.base.dao.command;
 
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.util.JsonUtil;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
-import com.yjl.vertx.base.dao.anno.operation.SqlParam;
+import com.yjl.vertx.base.dao.anno.operation.*;
 import com.yjl.vertx.base.dao.enumeration.SqlOperation;
-import com.yjl.vertx.base.dao.command.SqlCommand;
-import com.yjl.vertx.base.dao.command.SqlCommandFragment;
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -21,16 +27,29 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class SqlCommandFactory {
+@Data
+@Accessors(fluent = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class SqlCommandBuilder {
 
-	private static Pattern FOREACH_PATTERN = Pattern.compile("<foreach(?: (?:collection='(?<collection>\\w+)')|(?:item='(?<item>\\w+)')" +
-			"|(?:open='(?<open>.*?)')|(?:close='(?<close>.*?)')|(?:separator='(?<separator>.*?)'))+>(?<content>.*?)</foreach>");
+	private String sql;
 
-	private static Pattern PARAM_PATTERN = Pattern.compile("#\\{\\w+\\}(?:\\.#\\{\\w+\\})*");
+	private Method method;
 
-	public static SqlCommand getSqlCommand(String sql, Method method, Object[] methodParams) {
+	private Type realReturnType;
 
-		SqlCommand sqlCommand = new SqlCommand().sqlOperation(getMethodOperation(method)).returnType(method.getGenericReturnType());
+	private SqlOperation sqlOperation;
+
+	private final static Pattern FOREACH_PATTERN = Pattern.compile("<foreach(?: (?:collection='(?<collection>\\w+)')|(?:item='(?<item>\\w+)')" +
+		"|(?:open='(?<open>.*?)')|(?:close='(?<close>.*?)')|(?:separator='(?<separator>.*?)'))+>(?<content>.*?)</foreach>");
+
+	private final static Pattern PARAM_PATTERN = Pattern.compile("#\\{\\w+\\}(?:\\.#\\{\\w+\\})*");
+
+	private final static Class[] sqlAnnotations = new Class[]{Select.class, Update.class, Insert.class, Delete.class};
+
+	public SqlCommand build(Object[] args) {
+
+		SqlCommand sqlCommand = new SqlCommand().sqlOperation(this.sqlOperation).returnType(this.realReturnType);
 
 		if (method.getParameterCount() == 0) {
 			return sqlCommand.withParams(false).sql(sql);
@@ -43,7 +62,7 @@ public class SqlCommandFactory {
 			SqlCommandFragment foreachFragment = new SqlCommandFragment().start(foreachMatcher.start()).end(foreachMatcher.end())
 				.fragment(foreachMatcher.group()).pattern(FOREACH_PATTERN.pattern());
 
-			Object collection = getParam(method, methodParams, foreachMatcher.group("collection"));
+			Object collection = getParam(method, args, foreachMatcher.group("collection"));
 			String replace = getListItemStream(collection).map(item -> new JsonObject().put(foreachMatcher.group("item"), JsonUtil.getJsonAddableObject(item)))
 				.map(param -> {
 					List<SqlCommandFragment> childFragmentList = getOrdinaryFragment(method, new Object[]{param}, foreachMatcher.group("content"), matcher -> true);
@@ -55,7 +74,7 @@ public class SqlCommandFactory {
 			foreachFragmentList.add(foreachFragment);
 		}
 
-		List<SqlCommandFragment> ordinaryFragmentList = getOrdinaryFragment(method, methodParams, sql, matcher -> {
+		List<SqlCommandFragment> ordinaryFragmentList = getOrdinaryFragment(method, args, sql, matcher -> {
 			int	start = matcher.start();
 			return foreachFragmentList.stream().noneMatch(fragment -> fragment.start() < start && fragment.end() > start);
 		});
@@ -75,7 +94,8 @@ public class SqlCommandFactory {
 			}).reduce(new JsonArray(), JsonArray::add, JsonArray::addAll));
 	}
 
-	private static List<SqlCommandFragment> getOrdinaryFragment(Method method, Object[] params, String sql, Predicate<Matcher> filter) {
+
+	private List<SqlCommandFragment> getOrdinaryFragment(Method method, Object[] params, String sql, Predicate<Matcher> filter) {
 		List<SqlCommandFragment> ordinaryFragmentList = new ArrayList<>();
 		Matcher ordinaryMatcher = PARAM_PATTERN.matcher(sql);
 		while (ordinaryMatcher.find()) {
@@ -84,13 +104,13 @@ public class SqlCommandFactory {
 			boolean filterResult = filter.test(ordinaryMatcher);
 			if (filterResult) {
 				ordinaryFragmentList.add(new SqlCommandFragment().pattern(PARAM_PATTERN.pattern()).fragment(content).replace("?")
-					.start(start).end(ordinaryMatcher.end()).param(getParam(method, params, content)));
+					.start(start).end(ordinaryMatcher.end()).param(this.getParam(method, params, content)));
 			}
 		}
 		return ordinaryFragmentList;
 	}
 
-	private static Object getParam(Method method, Object[] params, String paramName) {
+	private Object getParam(Method method, Object[] params, String paramName) {
 		String[] keys = paramName.replaceAll("[#{}]", "").split("\\.");
 		String firstFloorKey = keys[0];
 		Object firstFloorParam = getFirstFloor(method, params, firstFloorKey);
@@ -104,7 +124,7 @@ public class SqlCommandFactory {
 		}
 	}
 
-	private static Object getFirstFloor(Method method, Object[] params, String firstFloorKey) {
+	private Object getFirstFloor(Method method, Object[] params, String firstFloorKey) {
 
 		Function<Integer, Parameter> getParamFunc = i -> method.getParameters()[i % method.getParameterCount()];
 		Function<Integer, Object> getParamValueFunc = i -> params[i % method.getParameterCount()];
@@ -130,7 +150,7 @@ public class SqlCommandFactory {
 			});
 	}
 
-	private static Stream<?> getListItemStream(Object param) {
+	private Stream<?> getListItemStream(Object param) {
 		if (param == null) {
 			return Stream.empty();
 		} else if (param instanceof Collection) {
@@ -144,7 +164,7 @@ public class SqlCommandFactory {
 		}
 	}
 
-	private static Object getChildItem(String key, Object object) {
+	private Object getChildItem(String key, Object object) {
 		if (object == null) {
 			return null;
 		} else if (object instanceof Map) {
@@ -156,7 +176,7 @@ public class SqlCommandFactory {
 		}
 	}
 
-	private static String buildSql(List<SqlCommandFragment> fragments, String content) {
+	private String buildSql(List<SqlCommandFragment> fragments, String content) {
 		return fragments.stream().sorted(Comparator.comparingInt(SqlCommandFragment::start))
 			.reduce(content,
 				(tempContent, sqlCommandFragment) -> tempContent.replace(sqlCommandFragment.fragment(), sqlCommandFragment.replace()),
@@ -164,9 +184,34 @@ public class SqlCommandFactory {
 			);
 	}
 
-	private static SqlOperation getMethodOperation(Method method) {
-		return Stream.of(SqlOperation.values()).filter(sqlOperation ->
-			Stream.of(method.getAnnotations()).anyMatch(annotation -> annotation.annotationType().getSimpleName().toUpperCase().equals(sqlOperation.name()))
-		).findFirst().orElseThrow(() -> new FrameworkException().message("not supported sql operation"));
+	public static SqlCommandBuilder newInstance(Method method) {
+		List<Annotation> annotationList = Stream.of(method.getAnnotations())
+			.filter(annotation -> Arrays.asList(sqlAnnotations).contains(annotation.annotationType()))
+			.collect(Collectors.toList());
+		if (annotationList.size() == 0) {
+			throw new FrameworkException().message("can not find sql operation annotation on method: " + method.getName());
+		} else if (annotationList.size() > 1) {
+			throw new FrameworkException().message("multi sql operation annotation found on method: " + method.getName());
+		} else if (!(method.getGenericReturnType() instanceof ParameterizedType)) {
+			throw new FrameworkException().message("methods in mapper must return io.vertx.core.Future Type: " + method.getName());
+		} else {
+			ParameterizedType parameterizedType = ReflectionsUtil.autoCast(method.getGenericReturnType());
+			if (!parameterizedType.getRawType().equals(Future.class)) {
+				throw new FrameworkException().message("methods in mapper must return io.vertx.core.Future Type: " + method.getName());
+			}
+			Annotation sqlAnnotation = annotationList.get(0);
+			SqlCommandBuilder builder = new SqlCommandBuilder().method(method)
+				.realReturnType(parameterizedType.getActualTypeArguments()[0]);
+			if (sqlAnnotation.annotationType().equals(Select.class)) {
+				return builder.sqlOperation(SqlOperation.SELECT).sql(ReflectionsUtil.<Select>autoCast(sqlAnnotation).value());
+			} else if (sqlAnnotation.annotationType().equals(Update.class)) {
+				return builder.sqlOperation(SqlOperation.UPDATE).sql(ReflectionsUtil.<Update>autoCast(sqlAnnotation).value());
+			} else if (sqlAnnotation.annotationType().equals(Insert.class)) {
+				return builder.sqlOperation(SqlOperation.INSERT).sql(ReflectionsUtil.<Insert>autoCast(sqlAnnotation).value());
+			} else if (sqlAnnotation.annotationType().equals(Delete.class)) {
+				return builder.sqlOperation(SqlOperation.DELETE).sql(ReflectionsUtil.<Delete>autoCast(sqlAnnotation).value());
+			}
+			return builder;
+		}
 	}
 }

@@ -3,9 +3,7 @@ package com.yjl.vertx.base.com.util;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +73,35 @@ public class ReflectionsUtil {
             return ((Class) clazz.getField("TYPE").get(null)).isPrimitive();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public static boolean compareType(Type type1, Type type2, boolean strict) {
+        if (type1 instanceof ParameterizedType && type2 instanceof ParameterizedType) {
+            ParameterizedType paramType1 = autoCast(type1);
+            ParameterizedType paramType2 = autoCast(type2);
+            if (!compareType(paramType1.getRawType(), paramType2.getRawType(), strict)) {
+                return false;
+            }
+            if (paramType1.getActualTypeArguments().length != paramType2.getActualTypeArguments().length) {
+                return false;
+            }
+            return IntStream.range(0, paramType1.getActualTypeArguments().length)
+                .allMatch(i -> compareType(paramType1.getActualTypeArguments()[i], paramType2.getActualTypeArguments()[i], strict));
+        } else if (type1 instanceof Class && type2 instanceof Class) {
+            Class clazz1 = autoCast(type1);
+            Class clazz2 = autoCast(type2);
+            return clazz1.equals(clazz2) || (!strict && clazz2.isAssignableFrom(clazz1));
+        } else if (type1 instanceof GenericArrayType && type2 instanceof GenericArrayType) {
+            GenericArrayType arrayType1 = autoCast(type1);
+            GenericArrayType arrayType2 = autoCast(type2);
+            return compareType(arrayType1.getGenericComponentType(), arrayType2.getGenericComponentType(), strict);
+        } else if (type1 instanceof TypeVariable && type2 instanceof TypeVariable) {
+            TypeVariable typeVariable1 = autoCast(type1);
+            TypeVariable typeVariable2 = autoCast(type2);
+            return typeVariable1.equals(typeVariable2);
+        } else {
+            return type1.equals(type2);
         }
     }
 }

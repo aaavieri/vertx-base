@@ -48,4 +48,8 @@ public abstract class AbstractCommandExecutor<T> {
 	protected abstract ThreeParamFunction<String, JsonArray, Handler<AsyncResult<T>>, SQLConnection> getWithParamSqlFunction(SQLConnection connection);
 
 	protected abstract BiFunction<String, Handler<AsyncResult<T>>, SQLConnection> getSqlFunction(SQLConnection connection);
+
+	public boolean isMatch(SqlCommand command) {
+		return this.getSqlOperation().equals(command.sqlOperation());
+	}
 }
