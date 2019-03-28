@@ -1,10 +1,10 @@
 package com.yjl.vertx.base.dao.factory.component;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.yjl.vertx.base.com.anno.Order;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.exception.FrameworkException;
+import com.yjl.vertx.base.com.util.JsonUtil;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.dao.adaptor.AbstractAdaptor;
@@ -13,6 +13,7 @@ import com.yjl.vertx.base.dao.anno.component.AutoRouteDaoMethod;
 import com.yjl.vertx.base.dao.anno.component.Dao;
 import com.yjl.vertx.base.dao.command.SqlCommand;
 import com.yjl.vertx.base.dao.command.SqlCommandBuilder;
+import com.yjl.vertx.base.dao.command.SqlCommandParamMapBuilder;
 import com.yjl.vertx.base.dao.executor.AbstractCommandExecutor;
 import com.yjl.vertx.base.web.enumeration.RouteMethod;
 import com.yjl.vertx.base.web.factory.component.BaseRestRouteFactory;
@@ -70,20 +71,23 @@ public class AutoRouteDaoFactory extends BaseRestRouteFactory {
 					AutoRouteDao autoRouteDao = clazz.getAnnotation(AutoRouteDao.class);
 					AutoRouteDaoMethod autoRouteDaoMethod = method.getAnnotation(AutoRouteDaoMethod.class);
 					Order order = method.getAnnotation(Order.class);
-					String parentUrl = autoRouteDao == null ? clazz.getSimpleName() : autoRouteDao.value();
-					String childUrl = autoRouteDaoMethod == null ? method.getName() : autoRouteDaoMethod.value();
+					String parentUrl = autoRouteDao == null || StringUtil.isBlank(autoRouteDao.value())
+						? clazz.getSimpleName() : autoRouteDao.value();
+					String childUrl = autoRouteDaoMethod == null || StringUtil.isBlank(autoRouteDaoMethod.value())
+						? method.getName() : autoRouteDaoMethod.value();
 					Handler<RoutingContext> handler = context -> {
 						JsonObject jsonObject = new JsonObject();
 						Consumer<Map.Entry<String, ?>> entryConsumer = entry -> jsonObject.put(entry.getKey(), entry.getValue());
 						context.request().params().forEach(entryConsumer);
 						context.request().formAttributes().forEach(entryConsumer);
-						if (context.getBody().length() > 0) {
+						String body = context.getBodyAsString();
+						if (JsonUtil.isJson(body)) {
 							context.getBodyAsJson().forEach(entryConsumer);
 						}
 						if (!this.builderMap.containsKey(method)) {
 							this.builderMap.put(method, SqlCommandBuilder.newInstance(method));
 						}
-						SqlCommand command = this.builderMap.get(method).build(new Object[] { jsonObject });
+						SqlCommand command = this.builderMap.get(method).build(new SqlCommandParamMapBuilder().buildJsonObject(jsonObject).getParamMap());
 						if (!this.executorMap.containsKey(method)) {
 							AbstractCommandExecutor executor = this.commandExecutors.stream().filter(commandExecutor -> commandExecutor.isMatch(command))
 								.findFirst().orElseThrow(() -> new FrameworkException().message("can not find executor for:" + method.getName()));

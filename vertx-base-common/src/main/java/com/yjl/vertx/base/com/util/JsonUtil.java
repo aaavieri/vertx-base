@@ -37,4 +37,18 @@ public class JsonUtil {
 		}
 		return object;
 	}
+
+	public static boolean isJson(String str) {
+		return isJsonArray(str) || isJsonObject(str);
+	}
+
+	public static boolean isJsonObject(String str) {
+		String nvlStr = StringUtil.nvl(str).trim().replaceAll("\\n", "");
+		return nvlStr.startsWith("{") && nvlStr.endsWith("}");
+	}
+
+	public static boolean isJsonArray(String str) {
+		String nvlStr = StringUtil.nvl(str).trim().replaceAll("\\n", "");
+		return nvlStr.startsWith("[") && nvlStr.endsWith("]");
+	}
 }

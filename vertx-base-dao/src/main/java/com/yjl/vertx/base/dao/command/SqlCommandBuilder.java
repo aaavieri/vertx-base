@@ -3,7 +3,10 @@ package com.yjl.vertx.base.dao.command;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.util.JsonUtil;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
-import com.yjl.vertx.base.dao.anno.operation.*;
+import com.yjl.vertx.base.dao.anno.operation.Delete;
+import com.yjl.vertx.base.dao.anno.operation.Insert;
+import com.yjl.vertx.base.dao.anno.operation.Select;
+import com.yjl.vertx.base.dao.anno.operation.Update;
 import com.yjl.vertx.base.dao.enumeration.SqlOperation;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
@@ -15,11 +18,9 @@ import lombok.experimental.Accessors;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,7 +48,7 @@ public class SqlCommandBuilder {
 
 	private final static Class[] sqlAnnotations = new Class[]{Select.class, Update.class, Insert.class, Delete.class};
 
-	public SqlCommand build(Object[] args) {
+	public SqlCommand build(Map<String, Object> paramMap) {
 
 		SqlCommand sqlCommand = new SqlCommand().sqlOperation(this.sqlOperation).returnType(this.realReturnType);
 
@@ -62,10 +63,12 @@ public class SqlCommandBuilder {
 			SqlCommandFragment foreachFragment = new SqlCommandFragment().start(foreachMatcher.start()).end(foreachMatcher.end())
 				.fragment(foreachMatcher.group()).pattern(FOREACH_PATTERN.pattern());
 
-			Object collection = getParam(method, args, foreachMatcher.group("collection"));
-			String replace = getListItemStream(collection).map(item -> new JsonObject().put(foreachMatcher.group("item"), JsonUtil.getJsonAddableObject(item)))
-				.map(param -> {
-					List<SqlCommandFragment> childFragmentList = getOrdinaryFragment(method, new Object[]{param}, foreachMatcher.group("content"), matcher -> true);
+			Object collection = getParam(paramMap, foreachMatcher.group("collection"));
+			String replace = getListItemStream(collection)
+				.map(item -> {
+					Map<String, Object> itemParamMap = new HashMap<>();
+					itemParamMap.put(foreachMatcher.group("item"), JsonUtil.getJsonAddableObject(item));
+					List<SqlCommandFragment> childFragmentList = getOrdinaryFragment(itemParamMap, foreachMatcher.group("content"), matcher -> true);
 					foreachFragment.addChildren(childFragmentList);
 					return buildSql(childFragmentList, foreachMatcher.group("content"));
 				})
@@ -74,7 +77,7 @@ public class SqlCommandBuilder {
 			foreachFragmentList.add(foreachFragment);
 		}
 
-		List<SqlCommandFragment> ordinaryFragmentList = getOrdinaryFragment(method, args, sql, matcher -> {
+		List<SqlCommandFragment> ordinaryFragmentList = getOrdinaryFragment(paramMap, sql, matcher -> {
 			int	start = matcher.start();
 			return foreachFragmentList.stream().noneMatch(fragment -> fragment.start() < start && fragment.end() > start);
 		});
@@ -95,7 +98,7 @@ public class SqlCommandBuilder {
 	}
 
 
-	private List<SqlCommandFragment> getOrdinaryFragment(Method method, Object[] params, String sql, Predicate<Matcher> filter) {
+	private List<SqlCommandFragment> getOrdinaryFragment(Map<String, Object> paramMap, String sql, Predicate<Matcher> filter) {
 		List<SqlCommandFragment> ordinaryFragmentList = new ArrayList<>();
 		Matcher ordinaryMatcher = PARAM_PATTERN.matcher(sql);
 		while (ordinaryMatcher.find()) {
@@ -104,16 +107,16 @@ public class SqlCommandBuilder {
 			boolean filterResult = filter.test(ordinaryMatcher);
 			if (filterResult) {
 				ordinaryFragmentList.add(new SqlCommandFragment().pattern(PARAM_PATTERN.pattern()).fragment(content).replace("?")
-					.start(start).end(ordinaryMatcher.end()).param(this.getParam(method, params, content)));
+					.start(start).end(ordinaryMatcher.end()).param(this.getParam(paramMap, content)));
 			}
 		}
 		return ordinaryFragmentList;
 	}
 
-	private Object getParam(Method method, Object[] params, String paramName) {
+	private Object getParam(Map<String, Object> paramMap, String paramName) {
 		String[] keys = paramName.replaceAll("[#{}]", "").split("\\.");
 		String firstFloorKey = keys[0];
-		Object firstFloorParam = getFirstFloor(method, params, firstFloorKey);
+		Object firstFloorParam = paramMap.get(firstFloorKey);
 		if (keys.length > 1) {
 			return IntStream.range(1, keys.length).boxed()
 				.reduce(firstFloorParam,
@@ -122,32 +125,6 @@ public class SqlCommandBuilder {
 		} else {
 			return firstFloorParam;
 		}
-	}
-
-	private Object getFirstFloor(Method method, Object[] params, String firstFloorKey) {
-
-		Function<Integer, Parameter> getParamFunc = i -> method.getParameters()[i % method.getParameterCount()];
-		Function<Integer, Object> getParamValueFunc = i -> params[i % method.getParameterCount()];
-
-		return IntStream.range(0, 2 * method.getParameterCount())
-			.filter(i -> (i < method.getParameterCount() && getParamFunc.apply(i).isAnnotationPresent(SqlParam.class))
-				|| (i > method.getParameterCount() && getParamFunc.apply(i).isNamePresent()))
-			.mapToObj(i -> {
-				if (i < method.getParameterCount()) {
-					return new AbstractMap.SimpleImmutableEntry<>(getParamFunc.apply(i).getAnnotation(SqlParam.class).value(), getParamValueFunc.apply(i));
-				} else {
-					return new AbstractMap.SimpleImmutableEntry<>(getParamFunc.apply(i).getName(), getParamValueFunc.apply(i));
-				}
-			})
-			.filter(entry -> entry.getKey().equals(firstFloorKey)).findFirst()
-			.map(entry -> JsonUtil.getJsonAddableObject(entry.getValue()))
-			.orElseGet(() -> {
-				if (method.getParameterCount() == 1) {
-					return getChildItem(firstFloorKey, params[0]);
-				} else {
-					throw new FrameworkException().message("can not find parameter: " + firstFloorKey);
-				}
-			});
 	}
 
 	private Stream<?> getListItemStream(Object param) {

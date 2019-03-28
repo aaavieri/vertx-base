@@ -9,6 +9,7 @@ import com.yjl.vertx.base.dao.adaptor.AbstractAdaptor;
 import com.yjl.vertx.base.dao.anno.component.Dao;
 import com.yjl.vertx.base.dao.command.SqlCommand;
 import com.yjl.vertx.base.dao.command.SqlCommandBuilder;
+import com.yjl.vertx.base.dao.command.SqlCommandParamMapBuilder;
 import com.yjl.vertx.base.dao.executor.AbstractCommandExecutor;
 import io.vertx.core.Future;
 import io.vertx.ext.sql.SQLClient;
@@ -60,7 +61,7 @@ public class DaoFactory extends BaseAnnotationComponentFactory {
 				this.builderMap.put(method, SqlCommandBuilder.newInstance(method));
 			}
 
-			SqlCommand command = this.builderMap.get(method).build(args);
+			SqlCommand command = this.builderMap.get(method).build(new SqlCommandParamMapBuilder().buildMethodCall(method, args).getParamMap());
 			if (!this.executorMap.containsKey(method)) {
 				AbstractCommandExecutor executor = this.commandExecutors.stream().filter(commandExecutor -> commandExecutor.isMatch(command))
 					.findFirst().orElseThrow(() -> new FrameworkException().message("can not find executor for:" + method.getName()));
