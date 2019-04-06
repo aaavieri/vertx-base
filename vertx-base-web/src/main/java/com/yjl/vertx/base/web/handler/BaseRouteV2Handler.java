@@ -15,6 +15,7 @@ public abstract class BaseRouteV2Handler {
 	public void handle(RoutingContext context) {
 		this.handleSuccess(context).setHandler(voidAsyncResult -> {
 			if (voidAsyncResult.failed()) {
+				context.fail(voidAsyncResult.cause());
 				this.handleFailure(context);
 			}
 		});

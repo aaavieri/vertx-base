@@ -7,13 +7,16 @@
     <groupId>com.yjl</groupId>
     <artifactId>vertx-base</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>${vertx-base.version}</version>
     <modules>
         <module>vertx-base-common</module>
         <module>vertx-base-sample</module>
         <module>vertx-base-web</module>
         <module>vertx-base-dao</module>
-        <module>vertx-base-autoroutedao</module>
+        <module>vertx-base-dao-autoroute</module>
+        <module>vertx-base-webclient</module>
+        <module>vertx-base-webclient-autoroute</module>
+        <module>vertx-base-autoroute</module>
     </modules>
 
 
@@ -34,6 +37,7 @@
         <guice.version>4.2.2</guice.version>
         <lombok.version>1.18.6</lombok.version>
         <logback.version>1.2.3</logback.version>
+        <vertx-base.version>1.0-SNAPSHOT</vertx-base.version>
     </properties>
 
     <dependencyManagement>

@@ -4,9 +4,11 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 public class JsonUtil {
 
@@ -34,6 +36,11 @@ public class JsonUtil {
 			return ReflectionsUtil.<Date>autoCast(object).toInstant();
 		} else if (object instanceof BigDecimal) {
 			return ReflectionsUtil.<BigDecimal>autoCast(object).toPlainString();
+		} else if (object instanceof Collection) {
+			return ReflectionsUtil.<Collection<?>>autoCast(object).stream()
+				.reduce(new JsonArray(), (array, element) -> array.add(getJsonAddableObject(element)), JsonArray::addAll);
+		} else if (object != null && object.getClass().isArray()) {
+			return Stream.of(object).reduce(new JsonArray(), (array, element) -> array.add(getJsonAddableObject(element)), JsonArray::addAll);
 		}
 		return object;
 	}
@@ -50,5 +57,9 @@ public class JsonUtil {
 	public static boolean isJsonArray(String str) {
 		String nvlStr = StringUtil.nvl(str).trim().replaceAll("\\n", "");
 		return nvlStr.startsWith("[") && nvlStr.endsWith("]");
+	}
+
+	public static JsonObject nvl(JsonObject jsonObject) {
+		return jsonObject == null ? new JsonObject() : jsonObject;
 	}
 }

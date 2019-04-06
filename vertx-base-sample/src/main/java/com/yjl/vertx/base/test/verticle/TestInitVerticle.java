@@ -6,31 +6,29 @@ import com.google.inject.Injector;
 import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;
-import com.yjl.vertx.base.com.factory.family.FactoryFamilyNode;
 import com.yjl.vertx.base.com.verticle.InitVerticle;
-import com.yjl.vertx.base.dao.anno.component.Dao;
-import com.yjl.vertx.base.dao.factory.component.AdaptorFactory;
-import com.yjl.vertx.base.dao.factory.component.AutoRouteDaoFactory;
-import com.yjl.vertx.base.dao.factory.component.DaoFactory;
+import com.yjl.vertx.base.dao.factory.AutoRouteDaoFactory;
+import com.yjl.vertx.base.dao.factory.DaoFactory;
 import com.yjl.vertx.base.test.component.TestService;
 import com.yjl.vertx.base.test.handler.Test2Handler;
 import com.yjl.vertx.base.web.factory.component.RestHandlerV2Factory;
 import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
+import com.yjl.vertx.base.webclient.factory.AutoRouteWebClientFactory;
+import com.yjl.vertx.base.webclient.factory.WebClientFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
-//@ComponentInitializer(factoryClass = RestRouteV2Factory.class)
 @ComponentInitializer(factoryClass = AutoRouteDaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper")
-//@OverrideDependency(value = @ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.vertx.base.test.handler2"),
-//	customInclude = @ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper"))
+@ComponentInitializer(factoryClass = AutoRouteWebClientFactory.class, value = "com.yjl.vertx.base.test.client")
+@ComponentInitializer(factoryClass = RestRouteV2Factory.class)
+@OverrideDependency(value = @ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.vertx.base.test.handler2"),
+	customInclude = {@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper"),
+		@ComponentInitializer(factoryClass = WebClientFactory.class, value = "com.yjl.vertx.base.test.client")})
 //@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = {"com.yjl.vertx.base.test.handler2"})
 @ComponentInitializer("com.yjl.vertx.base.test.component")
 //@ComponentInitializer(factoryClass = SimpleSlf4jLogbackFactory.class)
@@ -42,13 +40,13 @@ public class TestInitVerticle extends InitVerticle {
 	}
 
 	public static void main(String[] args) throws NoSuchFieldException {
-		ComponentInitializer initializer1 = Stream.of(AutoRouteDaoFactory.class.getAnnotationsByType(ComponentInitializer.class))
-			.filter(initializer -> initializer.factoryClass().equals(AdaptorFactory.class))
-			.findFirst().get();
-		ComponentInitializer initializer2 = Stream.of(DaoFactory.class.getAnnotationsByType(ComponentInitializer.class))
-			.filter(initializer -> initializer.factoryClass().equals(AdaptorFactory.class))
-			.findFirst().get();
-		System.out.println(new FactoryFamilyNode().node(initializer1).equals(new FactoryFamilyNode().node(initializer2)));
+//		ComponentInitializer initializer1 = Stream.of(AutoRouteDaoFactory.class.getAnnotationsByType(ComponentInitializer.class))
+////			.filter(initializer -> initializer.factoryClass().equals(DaoAdaptorFactory.class))
+////			.findFirst().get();
+////		ComponentInitializer initializer2 = Stream.of(DaoFactory.class.getAnnotationsByType(ComponentInitializer.class))
+////			.filter(initializer -> initializer.factoryClass().equals(DaoAdaptorFactory.class))
+////			.findFirst().get();
+////		System.out.println(new FactoryFamilyNode().realNode(initializer1).equals(new FactoryFamilyNode().realNode(initializer2)));
 	}
 
 	static class Test {

@@ -1,7 +1,7 @@
 package com.yjl.vertx.base.com.util;
 
-import com.yjl.vertx.base.com.resolver.ParameterResolveResult;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -12,6 +12,8 @@ import java.util.stream.Stream;
  * @Description:
  */
 public class StringUtil {
+
+    private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(?<name>\\w+)\\}");
 
     public static boolean isBlank(String str) {
         return str == null || "".equals(str.trim());
@@ -63,13 +65,12 @@ public class StringUtil {
         }).reduce((p1, p2) -> p1 + delimiter + p2).map(result -> !result.startsWith(start) ? start + result : result).orElse(start);
     }
 
-    public static ParameterResolveResult resolveParam(String beforeResolve, String replace, String paramFormat) {
-        Pattern paramPattern = Pattern.compile(paramFormat);
-        Matcher matcher = paramPattern.matcher(beforeResolve);
-        ParameterResolveResult result = new ParameterResolveResult();
+    public static String replaceParam(String str, Map<String, Object> paramMap) {
+        Matcher matcher = PARAM_PATTERN.matcher(str);
+        String ret = str;
         while (matcher.find()) {
-            result.addParamName(matcher.group());
+            ret = ret.replace(matcher.group(), String.valueOf(paramMap.get(matcher.group("name"))));
         }
-        return result.setResult(beforeResolve.replaceAll(paramFormat, replace));
+        return ret;
     }
 }

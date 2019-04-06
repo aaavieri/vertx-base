@@ -1,5 +1,7 @@
 package com.yjl.vertx.base.com.util;
 
+import com.yjl.vertx.base.com.exception.FrameworkException;
+import io.vertx.core.Future;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
@@ -102,6 +104,22 @@ public class ReflectionsUtil {
             return typeVariable1.equals(typeVariable2);
         } else {
             return type1.equals(type2);
+        }
+    }
+
+    public static boolean isFutureParamType(Type type) {
+        if (type instanceof ParameterizedType) {
+            return ReflectionsUtil.<ParameterizedType>autoCast(type).getRawType().equals(Future.class);
+        } else {
+            return false;
+        }
+    }
+
+    public static Type getFutureActuleParamType(Type type) {
+        if (isFutureParamType(type)) {
+            return ReflectionsUtil.<ParameterizedType>autoCast(type).getActualTypeArguments()[0];
+        } else {
+            throw null;
         }
     }
 }

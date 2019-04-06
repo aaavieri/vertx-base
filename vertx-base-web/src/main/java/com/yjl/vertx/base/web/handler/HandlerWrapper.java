@@ -1,7 +1,7 @@
 package com.yjl.vertx.base.web.handler;
 
-import com.yjl.vertx.base.web.enumeration.RouteMethod;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,7 +12,7 @@ public class HandlerWrapper {
 
 	private String url;
 
-	private RouteMethod method;
+	private HttpMethod method;
 
 	private boolean regexp = false;
 

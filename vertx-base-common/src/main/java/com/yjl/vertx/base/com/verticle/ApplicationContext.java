@@ -3,6 +3,7 @@ package com.yjl.vertx.base.com.verticle;
 import com.google.inject.Injector;
 import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
 import com.yjl.vertx.base.com.factory.family.FactoryFamily;
+import com.yjl.vertx.base.com.factory.family.listener.impl.PrintNodeStatusListener;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,7 @@ public class ApplicationContext {
 
 	public void initContext(InitVerticle verticle) {
 		try {
-			this.factoryFamily = new FactoryFamily().initFamilyTree(verticle).initFamily();
+			this.factoryFamily = new FactoryFamily().initFamilyTree(verticle).listenNodeStatus(new PrintNodeStatusListener()).initFamily();
 			this.factoryFamily.start();
 		} catch (Throwable e) {
 			e.printStackTrace();

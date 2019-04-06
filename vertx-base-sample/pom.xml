@@ -5,7 +5,7 @@
     <parent>
         <artifactId>vertx-base</artifactId>
         <groupId>com.yjl</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${vertx-base.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,17 +15,27 @@
         <dependency>
             <groupId>com.yjl</groupId>
             <artifactId>vertx-base-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${vertx-base.version}</version>
         </dependency>
         <dependency>
             <groupId>com.yjl</groupId>
             <artifactId>vertx-base-web</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${vertx-base.version}</version>
         </dependency>
         <dependency>
             <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-autoroutedao</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>vertx-base-dao-autoroute</artifactId>
+            <version>${vertx-base.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yjl</groupId>
+            <artifactId>vertx-base-webclient</artifactId>
+            <version>${vertx-base.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yjl</groupId>
+            <artifactId>vertx-base-webclient-autoroute</artifactId>
+            <version>${vertx-base.version}</version>
         </dependency>
     </dependencies>
 </project>

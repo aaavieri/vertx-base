@@ -17,7 +17,11 @@ public class TestHandler {
 	@RestRouteMapping("first")
 	public Handler<RoutingContext> first() {
 		return routingContext -> {
-			routingContext.response().end(new JsonObject().put("first", true)
+
+			JsonObject retData = new JsonObject();
+			routingContext.data().forEach(retData::put);
+
+			routingContext.response().end(retData.put("first", true)
 					.put("deploymentIDs", this.vertx.deploymentIDs()).toBuffer());
 		};
 	}

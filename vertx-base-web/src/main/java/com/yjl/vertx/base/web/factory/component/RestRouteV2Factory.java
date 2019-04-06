@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @ComponentInitializer(factoryClass = RestHandlerV2Factory.class)
+@ComponentInitializer(factoryClass = HttpServerFactory.class)
 public class RestRouteV2Factory extends BaseRestRouteFactory {
 
 	@Inject

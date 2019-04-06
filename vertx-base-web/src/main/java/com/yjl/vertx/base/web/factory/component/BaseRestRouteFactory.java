@@ -2,21 +2,15 @@ package com.yjl.vertx.base.web.factory.component;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
-import io.vertx.ext.web.handler.ResponseContentTypeHandler;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -29,40 +23,18 @@ import java.util.List;
 
 public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactory {
 
-	protected Router router;
-
-	@Inject
-	protected Vertx vertx;
-
-	@Config
-	@Inject
-	private JsonObject config;
-
-	@Inject
-	@Config("app.port")
-	private int port = this.defaultPort();
-
 	@Inject
 	@Named("defaultFailureHandler")
 	private Handler<RoutingContext> defaultFailureHandler;
 
+	@Inject
+	protected Router router;
+
+	@Inject
+	protected HttpServer server;
+
 	public void configure() {
-		HttpServer server = vertx.createHttpServer();
-		this.router = Router.router(this.vertx);
-		this.router.route().handler(CookieHandler.create())
-			.handler(BodyHandler.create())
-			.produces("application/json;charset=UTF-8")
-			.handler(ResponseContentTypeHandler.create());
 		this.getHandlerWrapperList().stream().sorted(Comparator.comparingInt(HandlerWrapper::order)).forEach(this::bindOneRoute);
-		server.requestHandler(router).listen(this.getPort());
-	}
-
-	protected int getPort() {
-		return this.port;
-	}
-
-	protected int defaultPort() {
-		return 8080;
 	}
 
 	protected boolean checkGenericInfo(Method method) {

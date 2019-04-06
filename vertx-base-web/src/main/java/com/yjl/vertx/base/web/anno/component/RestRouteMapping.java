@@ -1,6 +1,6 @@
 package com.yjl.vertx.base.web.anno.component;
 
-import com.yjl.vertx.base.web.enumeration.RouteMethod;
+import io.vertx.core.http.HttpMethod;
 
 import java.lang.annotation.*;
 
@@ -11,7 +11,7 @@ public @interface RestRouteMapping {
 
     String value() default "";
 
-    RouteMethod method() default RouteMethod.GET;
+    HttpMethod method() default HttpMethod.GET;
 
     String descript() default "";
 
