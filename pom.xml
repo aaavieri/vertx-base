@@ -7,7 +7,7 @@
     <groupId>com.yjl</groupId>
     <artifactId>vertx-base</artifactId>
     <packaging>pom</packaging>
-    <version>${vertx-base.version}</version>
+    <version>1.0-SNAPSHOT</version>
     <modules>
         <module>vertx-base-common</module>
         <module>vertx-base-sample</module>
