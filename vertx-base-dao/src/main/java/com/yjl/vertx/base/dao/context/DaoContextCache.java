@@ -28,7 +28,7 @@ public class DaoContextCache {
 				SqlCommandBuilder builder = SqlCommandBuilder.newInstance(method);
 				AbstractSqlCommandExecutor commandExecutor = this.commandExecutors.stream().filter(executor -> executor.isMatch(builder.sqlOperation()))
 					.findFirst().orElseThrow(() -> new FrameworkException().message("can not find executor for:" + method.getName()));
-				AbstractDaoAdaptor daoAdaptor = this.adaptors.stream().filter(adaptor -> adaptor.isMatch(builder.realReturnType()))
+				AbstractDaoAdaptor daoAdaptor = this.adaptors.stream().filter(adaptor -> adaptor.isMatch(builder.sqlOperation(), builder.realReturnType()))
 					.findFirst().orElseThrow(() -> new FrameworkException().message("can not find adaptor for:" + method.getName()));
 				DaoContext daoContext = new DaoContext().daoAdaptor(daoAdaptor).method(method).sqlCommandBuilder(builder).sqlCommandExecutor(commandExecutor);
 				this.contextList.add(daoContext);
