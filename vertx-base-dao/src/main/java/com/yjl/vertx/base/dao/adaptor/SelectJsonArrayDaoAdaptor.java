@@ -12,6 +12,6 @@ public class SelectJsonArrayDaoAdaptor extends AbstractDaoAdaptor<ResultSet, Jso
 
 	@Override
 	public JsonArray adapt(ResultSet resultSet) {
-		return resultSet.getOutput();
+		return resultSet.getRows().stream().reduce(new JsonArray(), JsonArray::add, JsonArray::addAll);
 	}
 }
