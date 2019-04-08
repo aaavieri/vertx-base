@@ -25,11 +25,6 @@ public abstract class BaseRouteV2Handler {
 	}
 
 	public abstract Future<Void> handleSuccess(RoutingContext context);
-	
-	public RoutingContext saveToContext(RoutingContext routingContext, JsonObject jsonObject, String... keys) {
-	    Stream.of(keys).forEach(key -> routingContext.put(key, jsonObject.getValue(key)));
-	    return routingContext;
-    }
 
 	protected void handleFailure(RoutingContext context) {
 		this.defaultFailureHandler.handle(context);
