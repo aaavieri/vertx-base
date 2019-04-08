@@ -64,7 +64,14 @@ public class JsonUtil {
 	}
 	
 	public static JsonObject copy(JsonObject to, JsonObject from, String... keys) {
-	    Stream.of(keys).forEach(key -> to.put(key, from.getValue(key)));
+	    Stream.of(keys).forEach(key -> {
+	        Object value = from.getValue(key);
+	        if (value == null) {
+	            to.putNull(key);
+            } else {
+	            to.put(key, value);
+            }
+        });
 	    return to;
     }
 }

@@ -16,7 +16,14 @@ public class ContextUtil {
     }
     
     public static <T> JsonObject cpContextToJson(JsonObject jsonObject, RoutingContext routingContext, String... keys) {
-        Stream.of(keys).forEach(key -> jsonObject.put(key, routingContext.<T>get(key)));
+        Stream.of(keys).forEach(key -> {
+            T t = routingContext.get(key);
+            if (t == null) {
+                jsonObject.putNull(key);
+            } else {
+                jsonObject.put(key, t);
+            }
+        });
         return jsonObject;
     }
     
