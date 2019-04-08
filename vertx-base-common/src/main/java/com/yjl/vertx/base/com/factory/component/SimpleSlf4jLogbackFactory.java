@@ -17,7 +17,6 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static ch.qos.logback.core.spi.FilterReply.ACCEPT;

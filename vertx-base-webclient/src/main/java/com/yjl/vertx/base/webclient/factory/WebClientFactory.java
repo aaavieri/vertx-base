@@ -6,7 +6,6 @@ import com.yjl.vertx.base.com.builder.ParamMapBuilder;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
-import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.webclient.anno.component.RequestClient;
 import com.yjl.vertx.base.webclient.context.WebClientContext;
 import com.yjl.vertx.base.webclient.context.WebClientContextCache;

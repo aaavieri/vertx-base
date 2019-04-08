@@ -1,6 +1,5 @@
 package com.yjl.vertx.base.webclient.context;
 
-import com.yjl.vertx.base.com.builder.ParamMapBuilder;
 import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.webclient.adaptor.AbstractResponseAdaptor;
 import com.yjl.vertx.base.webclient.anno.component.RequestClient;

@@ -1,6 +1,8 @@
 package com.yjl.vertx.base.com.exception;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true)

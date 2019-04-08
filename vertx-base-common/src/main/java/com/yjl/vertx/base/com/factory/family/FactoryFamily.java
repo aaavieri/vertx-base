@@ -1,6 +1,9 @@
 package com.yjl.vertx.base.com.factory.family;
 
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.PrivateModule;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.anno.initializer.FirstClassComponent;
 import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;

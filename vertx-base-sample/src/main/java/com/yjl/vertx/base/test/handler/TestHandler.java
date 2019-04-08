@@ -1,8 +1,8 @@
 package com.yjl.vertx.base.test.handler;
 
 import com.google.inject.Inject;
-import com.yjl.vertx.base.web.anno.component.RestRouteV1Handler;
 import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
+import com.yjl.vertx.base.web.anno.component.RestRouteV1Handler;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

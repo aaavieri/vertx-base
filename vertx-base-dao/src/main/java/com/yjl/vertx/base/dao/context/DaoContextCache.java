@@ -3,7 +3,6 @@ package com.yjl.vertx.base.dao.context;
 import com.google.inject.Inject;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.dao.adaptor.AbstractDaoAdaptor;
-import com.yjl.vertx.base.dao.command.SqlCommand;
 import com.yjl.vertx.base.dao.command.SqlCommandBuilder;
 import com.yjl.vertx.base.dao.executor.AbstractSqlCommandExecutor;
 

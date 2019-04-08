@@ -4,10 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-
-import java.util.stream.Stream;
 
 public abstract class BaseRouteV2Handler {
 

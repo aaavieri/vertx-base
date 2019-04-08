@@ -10,7 +10,6 @@ import io.vertx.ext.web.client.HttpResponse;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class JsonParamSubmitExecutor extends AbstractRequestExecutor {
 	@Override

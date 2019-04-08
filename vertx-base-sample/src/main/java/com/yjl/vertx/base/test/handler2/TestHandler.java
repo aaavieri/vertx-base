@@ -2,7 +2,6 @@ package com.yjl.vertx.base.test.handler2;
 
 import com.google.inject.Inject;
 import com.yjl.vertx.base.com.util.JsonUtil;
-import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.test.dbmapper.WxUserMapper;
 import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
 import com.yjl.vertx.base.web.anno.component.RestRouteV2Handler;
@@ -12,8 +11,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-
-import java.util.function.Consumer;
 
 @RestRouteV2Handler({@RestRouteMapping(value = "/test/1", method = HttpMethod.POST), @RestRouteMapping("/test/2")})
 public class TestHandler extends BaseRouteV2Handler {

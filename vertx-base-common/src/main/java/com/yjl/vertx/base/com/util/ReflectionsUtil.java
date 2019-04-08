@@ -1,6 +1,5 @@
 package com.yjl.vertx.base.com.util;
 
-import com.yjl.vertx.base.com.exception.FrameworkException;
 import io.vertx.core.Future;
 import org.reflections.Reflections;
 

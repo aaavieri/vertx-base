@@ -12,7 +12,6 @@ import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
 import java.util.function.BiFunction;
 
 public abstract class AbstractSqlCommandExecutor<T> {

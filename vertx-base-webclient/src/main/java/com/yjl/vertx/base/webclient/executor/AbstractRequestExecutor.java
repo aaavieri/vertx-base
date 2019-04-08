@@ -1,15 +1,12 @@
 package com.yjl.vertx.base.webclient.executor;
 
 import com.yjl.vertx.base.com.util.StringUtil;
-import com.yjl.vertx.base.webclient.anno.component.RequestClient;
-import com.yjl.vertx.base.webclient.anno.request.Request;
 import com.yjl.vertx.base.webclient.anno.request.RequestData;
 import com.yjl.vertx.base.webclient.enumeration.RequestDataType;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
 
 import java.lang.reflect.Method;
 import java.util.Map;
