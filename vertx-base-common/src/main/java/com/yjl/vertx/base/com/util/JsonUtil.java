@@ -62,4 +62,9 @@ public class JsonUtil {
 	public static JsonObject nvl(JsonObject jsonObject) {
 		return jsonObject == null ? new JsonObject() : jsonObject;
 	}
+	
+	public static JsonObject copy(JsonObject to, JsonObject from, String... keys) {
+	    Stream.of(keys).forEach(key -> to.put(key, from.getValue(key)));
+	    return to;
+    }
 }
