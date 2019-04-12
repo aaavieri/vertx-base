@@ -16,6 +16,7 @@ import com.yjl.vertx.base.web.factory.component.HttpServerFactory;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.web.RoutingContext;
@@ -62,7 +63,7 @@ public class AutoRouteDaoFactory extends BaseRestRouteFactory {
 									as.result().close();
 									if (executeResult.succeeded()) {
 										Object adaptResult = daoContext.daoAdaptor().adapt(executeResult.result());
-										context.response().end(new JsonObject().put("data", adaptResult).toBuffer());
+										context.response().end(Json.encodeToBuffer(adaptResult));
 									} else {
 										context.fail(executeResult.cause());
 									}

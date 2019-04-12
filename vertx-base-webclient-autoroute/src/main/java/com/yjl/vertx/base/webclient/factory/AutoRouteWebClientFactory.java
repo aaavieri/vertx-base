@@ -16,6 +16,7 @@ import com.yjl.vertx.base.webclient.context.WebClientContext;
 import com.yjl.vertx.base.webclient.context.WebClientContextCache;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.HttpRequest;
@@ -60,7 +61,7 @@ public class AutoRouteWebClientFactory extends BaseRestRouteFactory {
 									HttpResponse<Buffer> bufferHttpResponse = asyncResult.result();
 									if (bufferHttpResponse.statusCode() >= 200 && bufferHttpResponse.statusCode() < 300) {
 										Object adaptResult = webClientContext.responseAdaptor().adapt(bufferHttpResponse);
-										context.response().end(new JsonObject().put("data", adaptResult).toBuffer());
+										context.response().end(Json.encodeToBuffer(adaptResult));
 									} else {
 										context.fail(new FrameworkException().message(bufferHttpResponse.statusMessage()));
 									}
