@@ -79,6 +79,9 @@ public interface WxChannelMapper {
 好了，我们来试试运行吧
 - 把sample工程中的init.sql导入数据库
 - 在IDE中debug运行
+
+MainClass|ProgramArguments
+io.vertx.core.Launcher|runProfile com.yjl.sample.vercicle.DbInitVerticle -profile=dev
 ```console
 MainClass：io.vertx.core.Launcher
 ProgramArguments：runProfile com.yjl.sample.vercicle.DbInitVerticle -profile=dev
