@@ -150,7 +150,7 @@ public interface LocalWebClient {
 ```
 - 然后跟【getting started】中的工程一样的打包或者debug，只不过main-verticle要改成com.yjl.sample.vercicle.WebClientVerticle
 - 最后测试一下吧：
-```
+```bash
 curl http://localhost:4203/localWxChannel/testFirst?a=testAppId
 {"wxappID":"testAppId","channelID":1,"wxsecret":"testSecret","barCodeURL":null,"information":null}
 ```
