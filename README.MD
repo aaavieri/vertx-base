@@ -15,7 +15,7 @@
 [工程源码地址](https://github.com/aaavieri/vertx-base-sample/tree/master/vertx-base-sample1)
 
 先安装vertx-base的jar包
-```
+```console
 git clone https://github.com/aaavieri/vertx-base.git
 cd vertx-base
 mvn clean install
@@ -79,12 +79,12 @@ public interface WxChannelMapper {
 好了，我们来试试运行吧
 - 把sample工程中的init.sql导入数据库
 - 在IDE中debug运行
-```
+```console
 MainClass：io.vertx.core.Launcher
 ProgramArguments：runProfile com.yjl.sample.vercicle.DbInitVerticle -profile=dev
 ```
 - 在fat-jar中运行
-```
+```console
 // 先打包
 mvn clean package
 cd target
@@ -92,7 +92,7 @@ cd target
 java -jar vertx-base-sample1-1.0.0-SNAPSHOT-fat.jar -profile=dev
 ```
 - 尝试运行
-```
+```console
 curl http://localhost:4202/wxChannel/getChannelInfo?appId=testAppId
 {"wxappID":"testAppId","channelID":1,"wxsecret":"testSecret","barCodeURL":null,"information":null}
 ```
@@ -150,7 +150,7 @@ public interface LocalWebClient {
 ```
 - 然后跟【getting started】中的工程一样的打包或者debug，只不过main-verticle要改成com.yjl.sample.vercicle.WebClientVerticle
 - 最后测试一下吧：
-```bash
+```console
 curl http://localhost:4203/localWxChannel/testFirst?a=testAppId
 {"wxappID":"testAppId","channelID":1,"wxsecret":"testSecret","barCodeURL":null,"information":null}
 ```
