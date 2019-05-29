@@ -160,7 +160,7 @@ curl http://localhost:4203/localWxChannel/testFirst?a=testAppId
 (包含但不限于http通信、DB查询、文件操作)，从而达到非阻塞的效果，
 并将性能提升到很高水平。vert.x的异步API中最重要的一个类就是Future了，
 来看看怎么使用吧。
-```java_holder_method_tree
+```java
 Future<JsonObject> future = this.wxUserMapper.getWxUser("a", "b");
 future.setHandler(as -> {
     if (as.succeeded()) {
