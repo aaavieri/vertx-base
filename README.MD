@@ -324,6 +324,8 @@ public abstract class BaseRouteV2Handler {
 ```java
     final JsonObject data = new JsonObject();
     this.clientMapper.findByClientId(clientId).compose(clientInfo -> {
+        // compose中的类似之前handler内容只处理succeeded时的result
+        // 失败的处理会在最后的handler统一处理
         data.mergeIn(clientInfo, true);
         String openId = clientInfo.getString("openId");
         String appId = clientInfo.getString("appId");
