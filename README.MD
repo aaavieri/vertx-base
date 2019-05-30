@@ -158,15 +158,183 @@ curl http://localhost:4203/localWxChannel/testFirst?a=testAppId
 随便用了一个war3的梗儿，接下来我们写一点复杂的工程，这就涉及到vert.x的异步API了，
 传统意义上逻辑代码都是同步代码，而vert.x的最大的特点就是异步调用IO操作等耗时较多的操作
 (包含但不限于http通信、DB查询、文件操作)，从而达到非阻塞的效果，
-并将性能提升到很高水平。vert.x的异步API中最重要的一个类就是Future了，
-来看看怎么使用吧。
+并将性能提升到很高水平。
+- vert.x的异步API中最重要的一个类就是Future了，来看看怎么使用吧。
 ```java
+// 调用一个dbmapper检索数据，得到一个future，
+// future并不能立即马上得到结果，而是要给它一个handler，让它在得到结果之后调用该handler
+// 的处理
 Future<JsonObject> future = this.wxUserMapper.getWxUser("a", "b");
 future.setHandler(as -> {
+    // as.succeeded()是获取异步执行future的调用成功与否，
+    // 成功的话就可以通过result()方法拿到结果
     if (as.succeeded()) {
-        routingContext.response().end(as.result().put("second", true).toBuffer());
+        JsonObject result = as.result();
     } else {
-        routingContext.response().end(new JsonObject().put("cause", as.cause()).toBuffer());
+        // as.cause()就是导致失败的原因
+        Throwable cause = as.cause();
     }
 });
+```
+- 接下来通过Future调用来实现【2，getting started】中的工程同样的效果，
+也就是返回mapper调用的结果，同样需要一个verticle入口类：
+```java
+package com.yjl.sample.verticle;
+
+import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
+import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;
+import com.yjl.vertx.base.com.verticle.InitVerticle;
+import com.yjl.vertx.base.dao.factory.DaoFactory;
+import com.yjl.vertx.base.web.factory.component.RestHandlerV2Factory;
+import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
+
+// 因为要自定义handler的路径，所以要用@OverrideDependency注解，用来覆盖预定义的工厂依赖关系
+// RestHandlerV2Factory工厂生成处理请求的handler，DaoFactory根据mapper接口生成代理类
+// RestRouteV2Factory工厂把生成的handler绑定到具体的url和请求方法
+@OverrideDependency(value = @ComponentInitializer(factoryClass = RestRouteV2Factory.class),
+	customInclude = {@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.sample.handler"),
+		@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.sample.mapper")})
+public class Sample3Verticle extends InitVerticle {
+}
+```
+- 然后是简单的mapper，除了少了注解其它的跟【2，getting started】中的一样
+```java
+package com.yjl.sample.mapper;
+
+import com.yjl.vertx.base.com.anno.Param;
+import com.yjl.vertx.base.dao.anno.component.Dao;
+import com.yjl.vertx.base.dao.anno.operation.Select;
+import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
+
+// 少了@AutoRouteIf注解，以及方法的@AutoRouteIfMethod
+@Dao
+public interface WxChannelMapper {
+    @Select("select wxappID, channelID, wxsecret, barCodeURL, information from t_wxchannel where wxappID = #{appId}")
+    Future<JsonObject> getChannelInfo(@Param("appId") String appId);
+}
+```
+- 最后是一个handler
+```java
+package com.yjl.sample.handler;
+
+import com.google.inject.Inject;
+import com.yjl.sample.mapper.WxChannelMapper;
+import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
+import com.yjl.vertx.base.web.anno.component.RestRouteV2Handler;
+import com.yjl.vertx.base.web.handler.BaseRouteV2Handler;
+import com.yjl.vertx.base.web.util.ContextUtil;
+import io.vertx.core.Future;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
+
+// 定义了绑定的两个URL，其中第一个是POST
+@RestRouteV2Handler({@RestRouteMapping(value = "/test/1/:appId", method = HttpMethod.POST), @RestRouteMapping("/test/2")})
+public class Sample3Handler extends BaseRouteV2Handler {
+	
+	// @Inject是使用了Guice框架的依赖注入
+	@Inject
+	private WxChannelMapper wxChannelMapper;
+	
+	@Override
+	// routingContext就是request相关的上下文
+	public Future<Void> handleSuccess(RoutingContext routingContext) {
+		// 获取请求参数
+		JsonObject params = ContextUtil.getParam(routingContext);
+		// 这里的compose下一节细说，这里就是把返回值转换成一个统一数据类型的Future，
+		// 方便被父类的handle方法调用
+		return this.wxChannelMapper.getChannelInfo(params.getString("appId")).compose(jsonObject -> {
+			// 把mapper的future结果也就是检索结果写入到response中 
+			routingContext.response().end(jsonObject.put("path", routingContext.request().path()).toBuffer());
+			// 重新定义一个新的Future，作为统一接口返回用
+			Future<Void> future = Future.future();
+			// 直接完成Future
+			future.complete();
+			// 返回该Future
+			return future;
+		});
+	}
+}
+```
+- 以及它的父类
+```java
+package com.yjl.vertx.base.web.handler;
+
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.ext.web.RoutingContext;
+
+public abstract class BaseRouteV2Handler {
+    @Inject
+    @Named("defaultFailureHandler")
+    // 默认的异常处理handler
+    private Handler<RoutingContext> defaultFailureHandler;
+
+    public BaseRouteV2Handler() {
+    }
+
+    public void handle(RoutingContext context) {
+        // 调用handleSuccess之后得到Future<Void>，并给它一个handler
+        this.handleSuccess(context).setHandler((voidAsyncResult) -> {
+            // 失败的时候去调用失败的处理
+            if (voidAsyncResult.failed()) {
+                context.fail(voidAsyncResult.cause());
+                this.handleFailure(context);
+            }
+        });
+    }
+
+    public abstract Future<Void> handleSuccess(RoutingContext var1);
+
+    protected void handleFailure(RoutingContext context) {
+        this.defaultFailureHandler.handle(context);
+    }
+}
+```
+- 之前出现的compose是什么鬼？
+故名思义，就是把多个future组合起来的一个API，因为Future异步执行，所以需要设定一个handler
+给它，然后呢？如果handler里面继续调用异步操作得到一个新的Future，这个Future再来一个handler
+，就会形成一个可怕的回调地狱，让我们来感受一下它的魅力吧^_^
+```java
+    Future<JsonObject> clientInfoFuture = this.clientMapper.findByClientId(clientId);
+    clientInfoFuture.setHandler(as -> {
+        if (as.succeeded()) {
+            String openId = as.result().getString("openId");
+            String appId = as.result().getString("appId");
+            Future<JsonObject> userInfoFuture = this.wxUserMapper.getWxUser(appId, openId);
+            userInfoFuture.setHandler(as2 -> {
+                if (as2.succeeded()) {
+                    Future<JsonObject> channelFuture = this.wxChannelMapper.getChannelInfo(appId);
+                    channelFuture.setHandler(as3 -> {
+                        if (as3.succeeded()) {
+                            routingContext.response().end(new JsonObject().mergeIn(as.result(), true)
+                                .mergeIn(as2.result(), true)
+                                .mergeIn(as3.result(), true).toBuffer());
+                        }
+                    });
+                }
+            });
+        }
+    });
+```
+而我们换成不完全等价（略有出入）的compose写法，是不是看起来清爽许多
+```java
+    final JsonObject data = new JsonObject();
+    this.clientMapper.findByClientId(clientId).compose(clientInfo -> {
+        data.mergeIn(clientInfo, true);
+        String openId = clientInfo.getString("openId");
+        String appId = clientInfo.getString("appId");
+        return this.wxUserMapper.getWxUser(appId, openId);
+    }).compose(userInfo -> {
+        data.mergeIn(userInfo, true);
+        return this.wxChannelMapper.getChannelInfo(data.getString("appId"));
+    }).setHandler(as -> {
+        if (as.succeeded()) {
+            data.mergeIn(as.result(), true);
+            routingContext.response().end(data.toBuffer());
+        }
+    });
 ```
