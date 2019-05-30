@@ -6,6 +6,8 @@ import io.vertx.ext.web.RoutingContext;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.lang.reflect.Method;
+
 @Data
 @Accessors(fluent = true)
 public class HandlerWrapper {
@@ -21,6 +23,10 @@ public class HandlerWrapper {
 	private boolean autoHandleError = true;
 
 	private Handler<RoutingContext> handler;
+	
+	private Class<?> handlerClass;
+	
+	private String handlerMethod;
 
 	private int order;
 }

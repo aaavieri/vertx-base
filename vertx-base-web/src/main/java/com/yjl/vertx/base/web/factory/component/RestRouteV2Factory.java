@@ -34,6 +34,7 @@ public class RestRouteV2Factory extends BaseRestRouteFactory {
 				new HandlerWrapper().autoHandleError(restRouteMapping.autoHandleError()).regexp(restRouteMapping.regexp())
 					.method(restRouteMapping.method()).descript(restRouteMapping.descript()).url(restRouteMapping.value())
 					.handler(methodHandler).order(order == null ? Integer.MAX_VALUE : order.value())
+                    .handlerClass(handler.getClass()).handlerMethod("handleSuccess")
 			);
 		}).collect(Collectors.toList());
 	}

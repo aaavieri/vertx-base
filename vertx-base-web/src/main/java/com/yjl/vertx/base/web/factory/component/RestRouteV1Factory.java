@@ -38,7 +38,8 @@ public class RestRouteV1Factory extends BaseRestRouteFactory {
 						Order order = method.getAnnotation(Order.class);
 						return new HandlerWrapper().autoHandleError(routeMapping.autoHandleError()).regexp(routeMapping.regexp())
 							.method(routeMapping.method()).descript(routeMapping.descript()).url(StringUtil.concatPath(routeHandler.value(), routeMapping.value()))
-							.handler(methodHandler).order(order == null ? Integer.MAX_VALUE : order.value());
+							.handler(methodHandler).order(order == null ? Integer.MAX_VALUE : order.value())
+                            .handlerClass(method.getDeclaringClass()).handlerMethod(method.getName());
 					} catch (Throwable e) {
 						this.getLogger().error(e.getMessage(), e);
 						throw new FrameworkException(e);

@@ -184,7 +184,9 @@ public class FactoryFamily {
 					dependencies.clear();
 					dependencies.addAll(Arrays.asList(overrideDependency.customAll()));
 				} else {
-					dependencies.removeIf(dependency -> Arrays.binarySearch(overrideDependency.customExclude(), dependency.factoryClass()) >= 0);
+                    dependencies.removeIf(dependency -> Stream.concat(Stream.of(overrideDependency.customExclude()),
+                        Stream.of(overrideDependency.customInclude()).map(ComponentInitializer::factoryClass))
+                        .anyMatch(factoryClass -> factoryClass.equals(dependency.factoryClass())));
 					dependencies.addAll(Arrays.asList(overrideDependency.customInclude()));
 				}
 			});
@@ -200,11 +202,12 @@ public class FactoryFamily {
 				FactoryFamilyNode parentNode = new FactoryFamilyNode().realNode(overrideDependency.value()).nodeStatusListeners(this.nodeStatusListeners);
 				this.allNodes.add(parentNode);
 				this.addDependencyGroup(this.rootNode, parentNode);
-				Stream.concat(Stream.of(overrideDependency.customInclude()), Stream.of(overrideDependency.customAll()))
-					.filter(initializer -> Arrays.binarySearch(overrideDependency.customExclude(), initializer.factoryClass()) < 0)
-					.map(this::addToAllAndFetch)
-					.peek(dependency -> this.addDependencyGroup(parentNode, dependency))
-					.forEach(this::addNode);
+				this.addNode(parentNode, overrideDependency.value().factoryClass());
+//				Stream.concat(Stream.of(overrideDependency.customInclude()), Stream.of(overrideDependency.customAll()))
+//					.filter(initializer -> Arrays.binarySearch(overrideDependency.customExclude(), initializer.factoryClass()) < 0)
+//					.map(this::addToAllAndFetch)
+//					.peek(dependency -> this.addDependencyGroup(parentNode, dependency))
+//					.forEach(this::addNode);
 			});
 	}
 

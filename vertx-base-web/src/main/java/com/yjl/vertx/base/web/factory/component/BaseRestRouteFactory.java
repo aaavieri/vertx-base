@@ -45,7 +45,7 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 			checkResult = typeArguments.length == 1 && RoutingContext.class.getName().equals(typeArguments[0].getTypeName());
 		}
 		if (!checkResult) {
-			System.out.println(String.format("Skipped %s, because the generic info is not match Handler<RoutingContext>", method.toGenericString()));
+			this.getLogger().warn("Skipped {}, because the generic info is not match Handler<RoutingContext>", method.toGenericString());
 		}
 		return checkResult;
 	}
@@ -57,6 +57,7 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 		try {
 			MethodHandle methodHandle = MethodHandles.publicLookup().findVirtual(this.router.getClass(), methodName, MethodType.methodType(Route.class, String.class));
 			Route route = ReflectionsUtil.autoCast(methodHandle.invoke(this.router, handlerWrapper.url()));
+			this.getLogger().info("bind {} to {}#{}", handlerWrapper.url(), handlerWrapper.handlerClass().getName(), handlerWrapper.handlerMethod());
 			route.handler(handlerWrapper.handler());
 			if (handlerWrapper.autoHandleError()) {
 				route.failureHandler(this.defaultFailureHandler);
