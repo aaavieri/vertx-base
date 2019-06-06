@@ -340,3 +340,22 @@ public abstract class BaseRouteV2Handler {
         }
     });
 ```
+- 还有另外一个CompositeFuture的API，用于并行执行，类似于js里面的Promise.all。
+```java
+    JsonObject params = ContextUtil.getParam(routingContext);
+    // 这是检索channel的Future
+    Future<JsonObject> channelFuture = this.wxChannelMapper.getChannelInfo(params.getString("appId"));
+    // 检索用户列表的Future
+    Future<JsonArray> userListFuture = this.wxUserMapper.getAppUserList(params.getString("appId"));
+    // 并行执行两个Future，然后取到结果写入到response中
+    return CompositeFuture.all(channelFuture, userListFuture).compose(compositeFuture -> {
+        JsonObject channelInfo = compositeFuture.resultAt(0);
+        JsonArray userList = compositeFuture.resultAt(1);
+        routingContext.response().end(new JsonObject().put("channel", channelInfo).put("user", userList).toBuffer());
+        Future<Void> future = Future.future();
+        future.complete();
+        return future;
+    });
+```
+CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
+### 5，基于guice框架的工厂
