@@ -23,7 +23,7 @@ public abstract class AbstractSqlCommandExecutor<T> {
 		Handler<AsyncResult<T>> callback = as -> {
 			if (as.failed()) {
 				logger.error(as.cause().getMessage(), as.cause());
-				throw new FrameworkException(as.cause());
+				future.fail(as.cause());
 			} else {
 				future.complete(as.result());
 			}

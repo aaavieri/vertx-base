@@ -358,4 +358,18 @@ public abstract class BaseRouteV2Handler {
     });
 ```
 CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
-### 5，基于guice框架的工厂
+### 5，mapper的详细介绍
+在【2，getting started】中已经介绍了如何使用mapper的基础功能，接下来详细地介绍其规则
+- 增删改查功能：
+  1. @Select注解：查询
+  2. @Insert注解：插入
+  3. @Update注解：更新
+  4. @Delete注解：删除
+- 支持的sql文：
+  1. 直接书写的SQL文
+    ```java
+    @Select("select clientID, channelID, wechatID, phoneNum, standard, payType, status, score, attentionTime, bindTime, cancelTime, recommendPhone, " +
+                "sceneStr from t_client where clientID = #{clientID}")
+    Future<JsonObject> findByClientId(@Param("clientID") final int clientID);
+    ```
+  2. foreach循环的SQL文
