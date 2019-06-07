@@ -1,8 +1,8 @@
-package com.yjl.vertx.base.test.handler2;
+package com.yjl.sample.handler2;
 
 import com.google.inject.Inject;
+import com.yjl.sample.mapper.WxUserMapper;
 import com.yjl.vertx.base.com.util.JsonUtil;
-import com.yjl.vertx.base.test.dbmapper.WxUserMapper;
 import com.yjl.vertx.base.web.anno.component.RestRouteMapping;
 import com.yjl.vertx.base.web.anno.component.RestRouteV2Handler;
 import com.yjl.vertx.base.web.handler.BaseRouteV2Handler;

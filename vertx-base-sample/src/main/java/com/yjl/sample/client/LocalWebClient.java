@@ -1,4 +1,4 @@
-package com.yjl.vertx.base.test.client;
+package com.yjl.sample.client;
 
 import com.yjl.vertx.base.com.anno.Param;
 import com.yjl.vertx.base.webclient.anno.component.RequestClient;

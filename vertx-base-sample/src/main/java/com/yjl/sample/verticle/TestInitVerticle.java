@@ -1,16 +1,14 @@
-package com.yjl.vertx.base.test.verticle;
+package com.yjl.sample.verticle;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.yjl.sample.component.TestService;
 import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;
 import com.yjl.vertx.base.com.verticle.InitVerticle;
-import com.yjl.vertx.base.dao.factory.AutoRouteDaoFactory;
 import com.yjl.vertx.base.dao.factory.DaoFactory;
-import com.yjl.vertx.base.test.component.TestService;
-import com.yjl.vertx.base.test.handler.Test2Handler;
 import com.yjl.vertx.base.web.factory.component.RestHandlerV2Factory;
 import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
 import com.yjl.vertx.base.webclient.factory.AutoRouteWebClientFactory;
@@ -23,20 +21,23 @@ import io.vertx.core.json.JsonObject;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
-@ComponentInitializer(factoryClass = AutoRouteDaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper")
-@ComponentInitializer(factoryClass = AutoRouteWebClientFactory.class, value = "com.yjl.vertx.base.test.client")
-@ComponentInitializer(factoryClass = RestRouteV2Factory.class)
-@OverrideDependency(value = @ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.vertx.base.test.handler2"),
-	customInclude = {@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper"),
-		@ComponentInitializer(factoryClass = WebClientFactory.class, value = "com.yjl.vertx.base.test.client")})
-//@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = {"com.yjl.vertx.base.test.handler2"})
-@ComponentInitializer("com.yjl.vertx.base.test.component")
+//@ComponentInitializer(factoryClass = AutoRouteDaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper")
+//@ComponentInitializer(factoryClass = RestRouteV2Factory.class)
+//@OverrideDependency(value = @ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.vertx.base.test.handler2"),
+//	customInclude = {@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.vertx.base.test.dbmapper"),
+//		@ComponentInitializer(factoryClass = WebClientFactory.class, value = "com.yjl.vertx.base.test.client")})
+////@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = {"com.yjl.vertx.base.test.handler2"})
+//@ComponentInitializer("com.yjl.vertx.base.test.component")
 //@ComponentInitializer(factoryClass = SimpleSlf4jLogbackFactory.class)
 //@ComponentInitializer(factoryClass = MysqlSqlClientFactory.class)
+@OverrideDependency(value = @ComponentInitializer(factoryClass = RestRouteV2Factory.class),
+    customInclude = {@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.sample.handler"),
+        @ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.sample.mapper"),
+        @ComponentInitializer(factoryClass = WebClientFactory.class, value = "com.yjl.sample.client")
+    })
 public class TestInitVerticle extends InitVerticle {
 
 	protected void afterInit(Injector context) {
-		System.out.println(context.getInstance(Test2Handler.class));
 	}
 
 	public static void main(String[] args) throws NoSuchFieldException {

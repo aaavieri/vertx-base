@@ -41,8 +41,8 @@ public class SqlCommandBuilder {
 
 	private SqlOperation sqlOperation;
 
-	private final static Pattern FOREACH_PATTERN = Pattern.compile("<foreach(?: (?:collection='(?<collection>\\w+)')|(?:item='(?<item>\\w+)')" +
-		"|(?:open='(?<open>.*?)')|(?:close='(?<close>.*?)')|(?:separator='(?<separator>.*?)'))+>(?<content>.*?)</foreach>");
+	private final static Pattern FOREACH_PATTERN = Pattern.compile("<foreach(?: (?:(?:collection='(?<collection>\\w+)')|(?:item='(?<item>\\w+)')" +
+        "|(?:open='(?<open>.*?)')|(?:close='(?<close>.*?)')|(?:separator='(?<separator>.*?)')))+>(?<content>.*?)</foreach>");
 
 	private final static Pattern PARAM_PATTERN = Pattern.compile("#\\{\\w+\\}(?:\\.#\\{\\w+\\})*");
 

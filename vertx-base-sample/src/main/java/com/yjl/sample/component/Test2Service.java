@@ -1,4 +1,4 @@
-package com.yjl.vertx.base.test.component;
+package com.yjl.sample.component;
 
 import com.google.inject.Inject;
 import com.yjl.vertx.base.com.anno.component.Component;

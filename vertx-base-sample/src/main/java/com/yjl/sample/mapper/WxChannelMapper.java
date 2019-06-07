@@ -1,4 +1,4 @@
-package com.yjl.vertx.base.test.dbmapper;
+package com.yjl.sample.mapper;
 
 import com.yjl.vertx.base.autoroute.anno.AutoRouteIf;
 import com.yjl.vertx.base.com.anno.Param;

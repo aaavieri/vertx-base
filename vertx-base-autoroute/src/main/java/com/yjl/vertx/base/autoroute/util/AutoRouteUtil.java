@@ -43,6 +43,7 @@ public class AutoRouteUtil {
 		Order order = method.getAnnotation(Order.class);
 		return new HandlerWrapper().order(order == null ? Integer.MAX_VALUE : order.value())
 			.handler(handler).url(StringUtil.concatPath(parentUrl, childUrl))
+            .handlerClass(clazz).handlerMethod(method.getName())
 			.method(autoRouteIfMethod != null ? autoRouteIfMethod.route() : HttpMethod.GET)
 			.regexp(false).autoHandleError(true);
 	}

@@ -367,9 +367,16 @@ CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
   4. @Delete注解：删除
 - 支持的sql文：
   1. 直接书写的SQL文
-    ```java
-    @Select("select clientID, channelID, wechatID, phoneNum, standard, payType, status, score, attentionTime, bindTime, cancelTime, recommendPhone, " +
-                "sceneStr from t_client where clientID = #{clientID}")
-    Future<JsonObject> findByClientId(@Param("clientID") final int clientID);
-    ```
+        ```java
+        @Select("select clientID, channelID, wechatID, phoneNum, standard, payType, status, score, attentionTime, bindTime, cancelTime, recommendPhone, " +
+                    "sceneStr from t_client where clientID = #{clientID}")
+        Future<JsonObject> findByClientId(@Param("clientID") final int clientID);
+        ```
   2. foreach循环的SQL文
+      ```java
+      @Select("select wxappID, openID, clientID, channelID, unionid, phoneNum, information, sessionKey, token, tokenStartTime, insertUser, insertTime, updateUser, updateTime from t_wxuser " +
+          "where wxappID in " +
+          "<foreach collection='appList' item='app' open='(' close=')' separator=','>#{app}</foreach>")
+      Future<JsonArray> getAppUserList(@Param("appList") List<String> appIdList);
+      ```
+  3. 其它的SQL文：暂未支持
