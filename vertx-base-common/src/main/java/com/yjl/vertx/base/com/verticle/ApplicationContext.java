@@ -23,7 +23,7 @@ public class ApplicationContext {
 
 	public void initContext(InitVerticle verticle) {
 		try {
-			this.factoryFamily = new FactoryFamily().initFamilyTree(verticle).listenNodeStatus(new PrintNodeStatusListener()).initFamily();
+			this.factoryFamily = new FactoryFamily().initFamilyTree(verticle).listenNodeStatus(new PrintNodeStatusListener());
 			this.factoryFamily.start();
 		} catch (Throwable e) {
 			e.printStackTrace();

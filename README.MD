@@ -372,7 +372,7 @@ CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
                     "sceneStr from t_client where clientID = #{clientID}")
         Future<JsonObject> findByClientId(@Param("clientID") final int clientID);
         ```
-  2. foreach循环的SQL文
+  2. foreach循环的SQL文(语法和mybatis的foreach一样)
       ```java
       @Select("select wxappID, openID, clientID, channelID, unionid, phoneNum, information, sessionKey, token, tokenStartTime, insertUser, insertTime, updateUser, updateTime from t_wxuser " +
           "where wxappID in " +
@@ -380,3 +380,35 @@ CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
       Future<JsonArray> getAppUserList(@Param("appList") List<String> appIdList);
       ```
   3. 其它的SQL文：暂未支持
+- 入参的支持类型
+  1. 基本类型
+  2. String、Instant、BigDecimal
+  3. Map
+  4. Vert.x自带的JsonObject、JsonArray
+
+  注意：暂时不支持Bean!
+- 返回值的支持类型
+  1. 检索：
+     + JsonArray
+     + JsonObject
+     + List<JsonObject>
+     + List<Map<String, Object>>
+     + Map<String, Object>
+  2. 更新、删除、插入
+     + Integer
+     + String
+     + JsonArray
+- 返回值类型扩展：重写DaoAdaptorFactory的依赖
+```java
+package com.yjl.sample.vercicle;
+
+import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
+import com.yjl.vertx.base.com.verticle.InitVerticle;
+import com.yjl.vertx.base.webclient.factory.AutoRouteWebClientFactory;
+
+// 这里的factoryClass变了，因为实现的功能不同
+@ComponentInitializer(factoryClass = AutoRouteWebClientFactory.class, value = "com.yjl.sample.client")
+public class WebClientVerticle extends InitVerticle {
+}
+```
+  

@@ -52,12 +52,16 @@ public class DaoFactory extends BaseAnnotationComponentFactory {
 				    try {
                         Future<?> executeFuture = daoContext.sqlCommandExecutor().execute(as.result(), command);
                         executeFuture.setHandler(executeResult -> {
-                            as.result().close();
-                            if (executeResult.succeeded()) {
-                                Object adaptResult = daoContext.daoAdaptor().adapt(executeResult.result());
-                                future.complete(adaptResult);
-                            } else {
-                                future.fail(executeResult.cause());
+                            try {
+                                as.result().close();
+                                if (executeResult.succeeded()) {
+                                    Object adaptResult = daoContext.daoAdaptor().adapt(executeResult.result());
+                                    future.complete(adaptResult);
+                                } else {
+                                    future.fail(executeResult.cause());
+                                }
+                            } catch (Throwable throwable) {
+                                future.fail(throwable);
                             }
                         });
                     } catch (Throwable throwable) {

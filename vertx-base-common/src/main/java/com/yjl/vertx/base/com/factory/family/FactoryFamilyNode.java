@@ -2,6 +2,7 @@ package com.yjl.vertx.base.com.factory.family;
 
 import com.google.inject.Injector;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
+import com.yjl.vertx.base.com.enumeration.FactoryDefinition;
 import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
 import com.yjl.vertx.base.com.factory.family.listener.NodeStatusListener;
 import lombok.Getter;
@@ -28,12 +29,17 @@ public class FactoryFamilyNode {
 	@Getter
 	@Setter
 	private ComponentInitializer realNode;
+	
+	@Getter
+    @Setter
+    private FactoryDefinition definition;
 
 	@Getter
 	@Setter
 	private FactoryFamily family;
 
 	@Getter
+    @Setter
 	private int layer;
 
 	@Getter
@@ -49,10 +55,10 @@ public class FactoryFamilyNode {
 
 	private BaseComponentFactory nodeInstance;
 
-	public FactoryFamilyNode layer(int layer) {
-		this.layer = Math.max(this.layer, layer);
-		return this;
-	}
+//	public FactoryFamilyNode layer(int layer) {
+//		this.layer = Math.max(this.layer, layer);
+//		return this;
+//	}
 
 	public void beforeStart() {
 		this.nodeInstance.beforeConfigure();
