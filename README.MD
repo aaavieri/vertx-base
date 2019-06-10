@@ -450,4 +450,4 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
 ```
 ### 6，webclient的详细介绍
 - webclient工厂：WebClientFactory，需要被添加为依赖被申明出来。
-- [例子参考](#webclient)
+- [例子参考](#webclient的接口定义)
