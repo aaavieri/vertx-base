@@ -117,7 +117,8 @@ import com.yjl.vertx.base.webclient.factory.AutoRouteWebClientFactory;
 public class WebClientVerticle extends InitVerticle {
 }
 ```
-- 同样也需要一个接口，不过它是一个webclient的接口(类似于feignClient)
+- #### webclient的接口定义：
+同样也需要一个接口，不过它是一个webclient的接口(类似于feignClient)
 ```java
 package com.yjl.sample.client;
 
@@ -360,6 +361,14 @@ public abstract class BaseRouteV2Handler {
 CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
 ### 5，mapper的详细介绍
 在【2，getting started】中已经介绍了如何使用mapper的基础功能，接下来详细地介绍其规则
+- Dao工厂：DaoFactory，需要被添加为依赖被申明出来，
+并在value中设置mapper的包路径，源码在[sample3](https://github.com/aaavieri/vertx-base-sample/tree/master/vertx-base-sample3)中
+```java
+@OverrideDependency(value = @ComponentInitializer(factoryClass = RestRouteV2Factory.class),
+	customInclude = {@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.sample.handler"),
+		// DaoFactory的定义在这里
+		@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.sample.mapper")})
+```
 - 增删改查功能：
   1. @Select注解：查询
   2. @Insert注解：插入
@@ -439,4 +448,6 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
 	}
 }
 ```
-  
+### 6，webclient的详细介绍
+- webclient工厂：WebClientFactory，需要被添加为依赖被申明出来。
+- [例子参考](#webclient)
