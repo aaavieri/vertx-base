@@ -398,17 +398,45 @@ CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
      + Integer
      + String
      + JsonArray
-- 返回值类型扩展：重写DaoAdaptorFactory的依赖
+- 返回值类型扩展：重写返回值适配工厂DaoAdaptorFactory的依赖
 ```java
-package com.yjl.sample.vercicle;
+package com.yjl.sample.verticle;
 
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
+import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;
 import com.yjl.vertx.base.com.verticle.InitVerticle;
-import com.yjl.vertx.base.webclient.factory.AutoRouteWebClientFactory;
+import com.yjl.vertx.base.dao.factory.DaoAdaptorFactory;
+import com.yjl.vertx.base.dao.factory.DaoFactory;
+import com.yjl.vertx.base.web.factory.component.RestHandlerV2Factory;
+import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
 
-// 这里的factoryClass变了，因为实现的功能不同
-@ComponentInitializer(factoryClass = AutoRouteWebClientFactory.class, value = "com.yjl.sample.client")
-public class WebClientVerticle extends InitVerticle {
+@OverrideDependency(value = @ComponentInitializer(factoryClass = RestRouteV2Factory.class),
+	customInclude = {@ComponentInitializer(factoryClass = RestHandlerV2Factory.class, value = "com.yjl.sample.handler"),
+		@ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.sample.mapper")})
+// DaoAdaptorFactory是适配返回值类型的适配器工厂，com.yjl.vertx.base.dao.adaptor包下面是默认的适配器
+// 当有需要加入新的返回值类型的时候，可以创建新的适配器，并加入到DaoAdaptorFactory工厂的扫描范围中
+@OverrideDependency(value = @ComponentInitializer(factoryClass = DaoAdaptorFactory.class,
+	value = {"com.yjl.vertx.base.dao.adaptor", "com.yjl.sample.adaptor"}))
+public class Sample3Verticle extends InitVerticle {
+}
+```
+```java
+package com.yjl.sample.adaptor;
+
+import com.yjl.vertx.base.dao.adaptor.AbstractDaoAdaptor;
+import com.yjl.vertx.base.dao.enumeration.SqlOperation;
+import io.vertx.ext.sql.ResultSet;
+// com.yjl.sample.adaptor包下面的适配器，加入之后就可以适配String类型的数据了，这里的适配逻辑自己写
+public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
+	@Override
+	public SqlOperation matchOperation() {
+		return SqlOperation.SELECT;
+	}
+	
+	@Override
+	public String adapt(ResultSet resultSet) {
+		return resultSet.getRows().isEmpty() ? "" : resultSet.getRows().get(0).getInteger("channelID").toString();
+	}
 }
 ```
   
