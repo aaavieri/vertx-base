@@ -484,4 +484,16 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
   2. String：默认编码的字符串
   3. JsonArray
   4. JsonObject
-- 支持的返回类型的扩展，同[Dao的Adaptor的扩展类似](#返回值类型扩展)
+- 支持的返回类型的扩展，同[Dao的Adaptor的扩展类似](#返回值类型扩展)，书写新的adaptor，并被加入到
+工厂定义的value中
+### 7，工厂的使用
+- 工厂使用guice框架实现IOC功能
+```flow
+st=>start: 开始
+op=>operation: My Operation
+cond=>condition: Yes or No?
+e=>end
+st->op->cond
+cond(yes)->e
+cond(no)->op
+&```
