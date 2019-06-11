@@ -488,12 +488,48 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
 工厂定义的value中
 ### 7，工厂的使用
 - 工厂使用guice框架实现IOC功能
-```flow
-st=>start: 开始
-op=>operation: My Operation
-cond=>condition: Yes or No?
-e=>end
-st->op->cond
-cond(yes)->e
-cond(no)->op
-&```
+- 使用时添加main-verticle类注解，以让工厂生效，共有三个注解供声明用
+  1. @FirstClassComponent注解：头等工厂，同等条件下会被最优先初始化执行其中的IOC操作
+  2. @OverrideDependency注解：复写依赖工厂，会将其value对应的工厂的依赖重写
+  3. @ComponentInitializer注解：普通工厂，会在factoryClass中声明对应的工厂类，并在工厂类的类注解中
+  声明该工厂所依赖的其它工厂，如
+  ```java
+    package com.yjl.vertx.base.dao.factory;
+    
+    // 默认依赖mysql工厂，如果不用mysql数据库，则需要在main-verticl类注解中，
+    // 用@OverrideDependency注解进行复写
+    @ComponentInitializer(factoryClass = MysqlSqlClientFactory.class)
+    // 返回值适配工厂，如果有新的返回值类型要处理，也应复写
+    @ComponentInitializer(factoryClass = DaoAdaptorFactory.class, value = "com.yjl.vertx.base.dao.adaptor")
+    @ComponentInitializer(factoryClass = SqlExecutorFactory.class, value = "com.yjl.vertx.base.dao.executor")
+    @ComponentInitializer(factoryClass = DaoContextCacheFactory.class)
+    public class DaoFactory extends BaseAnnotationComponentFactory {
+    }
+  ```
+- 工厂初始化顺序：
+  1. 根工厂，默认是VertxResourceFactory，可以通过在verticle中重写getRootFactory方法修改
+  2. @FirstClassComponent注解中的工厂，默认只有一个SimpleSlf4jLogbackFactory，可自行添加，用于日志输出，配置参数大致如下：
+  ```json
+    "logbackConfig": {
+      "file": "./var/log/wwx-mini-vertx.log",
+      "level": {
+        "root": "DEBUG",
+        "com.yjl.vertx.base": "DEBUG",
+        "com.yjl.vertx.base.test": "DEBUG"
+      }
+    }
+  ```
+  3. @OverrideDependency注解中的工厂
+  4. @ComponentInitializer注解中的工厂
+  5. 初始化工厂时各法执行顺序：
+    + beforeConfigure：自动注入之前的操作
+    + configure：使用guice框架自动注入的逻辑
+    + afterConfigure：自动注入之后的操作
+- @OverrideDependency注解说明：
+  1. value：要重写依赖的工厂定义
+  2. customInclude：value声明的工厂依赖中，需要额外添加的工厂（在原有基础上添加）
+  3. customExclude：value声明的工厂依赖中，需要排队的工厂
+  4. customAll：value声明的工厂依赖全部废弃，而使用customAll中声明的工厂，
+  使用它的话会导致customInclude和customExclude不生效
+  5. dependNothing：为true表示不依赖任何工厂，将无示customInclude、customExclude、
+  customAll声明的内容
