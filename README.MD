@@ -407,7 +407,8 @@ CompositeFuture还有一些其它的API，请自行阅读vert.x的源码
      + Integer
      + String
      + JsonArray
-- 返回值类型扩展：重写返回值适配工厂DaoAdaptorFactory的依赖
+- #### 返回值类型扩展
+  重写返回值适配工厂DaoAdaptorFactory的依赖
 ```java
 package com.yjl.sample.verticle;
 
@@ -478,3 +479,9 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
      curl -X POST -H "Content-Type:application/json" -d '{"whole": {"appId": "testAppId"}}' http://localhost:4203/localWxChannel/testSecond
      {"wxappID":"testAppId","channelID":1,"wxsecret":"testSecret","barCodeURL":null,"information":null}
      ```
+- 支持的返回类型
+  1. Buffer：vert.x框架自带的一种类似于String的结构，非常推荐
+  2. String：默认编码的字符串
+  3. JsonArray
+  4. JsonObject
+- 支持的返回类型的扩展，同[Dao的Adaptor的扩展类似](#返回值类型扩展)
