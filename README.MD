@@ -451,3 +451,30 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
 ### 6，webclient的详细介绍
 - webclient工厂：WebClientFactory，需要被添加为依赖被申明出来。
 - [例子参考](#webclient的接口定义)
+- @RequestClient注解说明：
+  1. host：地址
+  2. port：端口（不能用默认缺省）
+  3. ssl：是否是https
+  4. initLevel：真正访问用的webclient的初始化等级（默认是全局共享）
+- @Request注解说明：
+  1. path：路径
+  2. initLevel：同上，两个注解中的initLevel会组合在一起生效
+  3. method：http请求方法，默认是GET
+- @RequestData注解说明：
+  1. type：数据类型，包括header，query参数，form表单参数以及json参数
+  2. key：通过webclient访问时传递的参数名
+  3. value：固定值，即不是传入的参数而是固定传参
+  4. paramKey：传入到当前接口的参数名
+  5. whole：如果为true，则只传递该参数而忽略其它参数（只在typ是json时生效），并把它作为参数集，这个相对复杂，请看下面这个在
+  sample2工程中的例子
+     ```java
+     @Request(path = "wxChannel/getChannelInfo", method = HttpMethod.GET)
+     @RequestData(type = RequestDataType.JSON_PARAM, key = "appId", paramKey = "whole", whole = true)
+     @AutoRouteIfMethod(value = "testSecond", route = HttpMethod.POST)
+     Future<JsonObject> testSecond(@Param("whole") JsonObject whole);
+     ```
+     运行sample1和sample2两个工程，然后测试
+     ```console
+     curl -X POST -H "Content-Type:application/json" -d '{"whole": {"appId": "testAppId"}}' http://localhost:4203/localWxChannel/testSecond
+     {"wxappID":"testAppId","channelID":1,"wxsecret":"testSecret","barCodeURL":null,"information":null}
+     ```
