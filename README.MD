@@ -612,3 +612,7 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
   与mapper的@AutoRouteIf注解+@AutoRouteMethod注解一致的请求
   21. AutoRouteWebClientFactory：自动将webclient接口转换成http请求接口，即不用handler，也能处理请求路径
   与webclient的@AutoRouteIf注解+@AutoRouteMethod注解一致的请求
+  
+  上述Factory在sample1、2、3中几乎都能找到例子，请参考[再发一次sample地址](https://github.com/aaavieri/vertx-base-sample)
+### 9，game over
+没想到我也能写这么多的md文档，也许这就是爱吧^_^
