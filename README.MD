@@ -486,7 +486,54 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
   4. JsonObject
 - 支持的返回类型的扩展，同[Dao的Adaptor的扩展类似](#返回值类型扩展)，书写新的adaptor，并被加入到
 工厂定义的value中
-### 7，工厂的使用
+### 7，profile
+- 各个sample工程中，都在resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory
+中定义了一个快速启动的cli命令行的class，有了它就可以使用runProfile来运行verticle，并为其指定约定的配置文件
+- 配置文件默认使用resources/config.${profile}.json
+- mvn打包时加入profile，这里的profile是mvn环境的profile，vertx.profile属性才是vertx的profile
+    ```xml
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <vertx.profile>dev</vertx.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <vertx.profile>test</vertx.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <vertx.profile>prod</vertx.profile>
+            </properties>
+        </profile>
+    </profiles>
+    ```
+- 在fatjar打包插件中使用定义的profile以及runProfile命令
+    ```xml
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+        <configuration>
+            <mainClass>io.vertx.core.Launcher</mainClass>
+            <arguments>
+                <argument>runProfile</argument>
+                <argument>${main.verticle}</argument>
+                <argument>-profile=${vertx.profile}</argument>
+            </arguments>
+        </configuration>
+    </plugin>
+    ```
+- pom.xml的具体写法参考[pom.xml示例](https://github.com/aaavieri/vertx-base-sample/blob/master/vertx-base-sample1/pom.xml)
+### 8，工厂的使用
 - 工厂使用guice框架实现IOC功能
 - 使用时添加main-verticle类注解，以让工厂生效，共有三个注解供声明用
   1. @FirstClassComponent注解：头等工厂，同等条件下会被最优先初始化执行其中的IOC操作
@@ -533,3 +580,35 @@ public class SelectStringAdaptor extends AbstractDaoAdaptor<ResultSet, String> {
   使用它的话会导致customInclude和customExclude不生效
   5. dependNothing：为true表示不依赖任何工厂，将无示customInclude、customExclude、
   customAll声明的内容
+- 框架已经实现的常用框架一览：
+  1. VertxResourceFactory：注入vertx基础组件，包括vertx对象以及config
+  2. SimpleSlf4jLogbackFactory：简单的日志组件，不自动注入而使用代码获取
+  ```java
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
+  ```
+  3. CommonComponentFactory：注入常用service组件
+  4. JdbcSqlClientFactory：注入JDBC数据库连接SQLClient
+  5. MysqlSqlClientFactory：注入mysql数据库连接SQLClient，采用了vertx特别定制的异步驱动
+  6. DaoFactory：给mapper接口提供动态代理，并自动注入
+  7. SqlExecutorFactory：自动注入执行sql文工具，一般会被DaoFactory所依赖，而非直接使用
+  8. DaoAdaptorFactory：自动注入mapper执行结果适配，一般会被DaoFactory所依赖，而非直接使用
+  ，也可以添加新的适配种类
+  9. DaoContextCacheFactory：自动注入mapper动态代理相关的一些缓存，一般会被DaoFactory所依赖，而非直接使用
+  10. HttpServerFactory：自动注入vertx创建的httpServer，一般会被RestRouteV2Factory所依赖，而非直接使用
+  11. DefaultFailureHandlerFactory：自动注入http请求时失败时的handler，一般会被RestRouteV2Factory所依赖，而非直接使用
+  12. RestRouteV1Factory：自动注入响应http请求的handler，不推荐使用，更推荐v2
+  13. RestRouteV2Factory：自动注入响应http请求的handler，推荐
+  14. RestHandlerV1Factory：扫描handler并注入到RestRouteV1Factory中供其绑定httpServer，
+  被RestRouteV1Factory所依赖，而非直接使用
+  15. RestHandlerV2Factory：同上
+  16. WebClientFactory：为webclient接口生成动态代理，并自动注入
+  17. RequestExecutorFactory：自动注入http请求执行工具到WebClientFactory，被WebClientFactory
+  所依赖，不直接使用
+  18. ResponseAdaptorFactory：自动注入http响应适配器到WebClientFactory，被WebClientFactory
+  所依赖，不直接使用，可以根据返回类型的需要添加新的响应类型
+  19. WebClientContextCacheFactory：自动注入webclient动态代理相关的一些缓存，
+  一般会被WebClientFactory所依赖，而非直接使用
+  20. AutoRouteDaoFactory：自动将mapper接口转换成http请求接口，即不用handler，也能处理请求路径
+  与mapper的@AutoRouteIf注解+@AutoRouteMethod注解一致的请求
+  21. AutoRouteWebClientFactory：自动将webclient接口转换成http请求接口，即不用handler，也能处理请求路径
+  与webclient的@AutoRouteIf注解+@AutoRouteMethod注解一致的请求
