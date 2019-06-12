@@ -9,6 +9,8 @@
 
 [google guice框架文档地址](https://github.com/google/guice/wiki/GettingStarted)
 
+[sample地址](https://github.com/aaavieri/vertx-base-sample)
+
 ### 2，getting started
 其实不看以上的文档也并没有太大关系，毕竟以您的智慧，这并不会难到你。
 所以，让我们来创建点简单的DB检索(基于mysql)接口web工程试试看吧。
