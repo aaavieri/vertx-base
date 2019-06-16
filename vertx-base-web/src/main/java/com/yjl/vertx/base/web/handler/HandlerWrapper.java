@@ -6,8 +6,6 @@ import io.vertx.ext.web.RoutingContext;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.lang.reflect.Method;
-
 @Data
 @Accessors(fluent = true)
 public class HandlerWrapper {

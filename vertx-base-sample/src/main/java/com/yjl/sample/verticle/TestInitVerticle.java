@@ -13,7 +13,6 @@ import com.yjl.vertx.base.com.verticle.InitVerticle;
 import com.yjl.vertx.base.dao.factory.DaoFactory;
 import com.yjl.vertx.base.web.factory.component.RestHandlerV2Factory;
 import com.yjl.vertx.base.web.factory.component.RestRouteV2Factory;
-import com.yjl.vertx.base.webclient.factory.AutoRouteWebClientFactory;
 import com.yjl.vertx.base.webclient.factory.WebClientFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

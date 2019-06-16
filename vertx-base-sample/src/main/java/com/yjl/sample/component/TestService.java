@@ -1,10 +1,10 @@
 package com.yjl.sample.component;
 
 import com.google.inject.Inject;
-import com.yjl.sample.mapper.WxUserMapper;
-import com.yjl.vertx.base.com.anno.component.Component;
 import com.yjl.sample.mapper.ClientMapper;
 import com.yjl.sample.mapper.WxChannelMapper;
+import com.yjl.sample.mapper.WxUserMapper;
+import com.yjl.vertx.base.com.anno.component.Component;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

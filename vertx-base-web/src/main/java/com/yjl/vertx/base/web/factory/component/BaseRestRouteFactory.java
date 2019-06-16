@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
-import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
@@ -13,9 +12,6 @@ import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
