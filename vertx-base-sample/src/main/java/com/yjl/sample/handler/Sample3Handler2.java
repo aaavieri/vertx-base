@@ -33,9 +33,7 @@ public class Sample3Handler2 extends BaseRouteV2Handler {
 		return CompositeFuture.all(Stream.of(userListFuture).collect(Collectors.toList())).compose(compositeFuture -> {
 			JsonArray userList = compositeFuture.resultAt(0);
 			routingContext.response().end(new JsonObject().put("user", userList).toBuffer());
-			Future<Void> future = Future.future();
-			future.complete();
-			return future;
+			return Future.succeededFuture();
 		});
 	}
 }

@@ -17,6 +17,8 @@
         <module>vertx-base-webclient</module>
         <module>vertx-base-webclient-autoroute</module>
         <module>vertx-base-autoroute</module>
+        <module>vertx-base-auth</module>
+        <module>vertx-base-auth-usi</module>
     </modules>
 
 

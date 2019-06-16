@@ -37,10 +37,8 @@ public class Test2Handler extends BaseRouteV2Handler {
 	public Future<Void> handleSuccess(RoutingContext context) {
 		return this.localWebClient.testFirst("2", "3", 5)
 			.compose(jsonObject -> {
-				Future<Void> future = Future.future();
 				context.response().end(new JsonObject().put("result", jsonObject).toBuffer());
-				future.complete();
-				return future;
+				return Future.succeededFuture();
 			});
 	}
 }

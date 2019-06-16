@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.yjl.sample.component.TestService;
+import com.yjl.vertx.base.auth.factory.UsiAuthenticatorFactory;
+import com.yjl.vertx.base.auth.factory.UsiAuthorizerFactory;
 import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.anno.initializer.OverrideDependency;
@@ -35,6 +37,8 @@ import java.util.Map;
         @ComponentInitializer(factoryClass = DaoFactory.class, value = "com.yjl.sample.mapper"),
         @ComponentInitializer(factoryClass = WebClientFactory.class, value = "com.yjl.sample.client")
     })
+@ComponentInitializer(factoryClass = UsiAuthenticatorFactory.class)
+@ComponentInitializer(factoryClass = UsiAuthorizerFactory.class)
 public class TestInitVerticle extends InitVerticle {
 
 	protected void afterInit(Injector context) {

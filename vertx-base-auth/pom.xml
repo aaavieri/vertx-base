@@ -9,8 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vertx-base-sample</artifactId>
+    <artifactId>vertx-base-auth</artifactId>
 
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>com.yjl</groupId>
@@ -23,24 +24,14 @@
             <version>${vertx-base.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-dao-autoroute</artifactId>
-            <version>${vertx-base.version}</version>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth-jwt</artifactId>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-webclient</artifactId>
-            <version>${vertx-base.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-webclient-autoroute</artifactId>
-            <version>${vertx-base.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-auth-usi</artifactId>
-            <version>${vertx-base.version}</version>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+            <version>${vertx.version}</version>
         </dependency>
     </dependencies>
 </project>

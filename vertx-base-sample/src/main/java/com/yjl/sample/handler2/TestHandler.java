@@ -35,7 +35,6 @@ public class TestHandler extends BaseRouteV2Handler {
 	public Future<Void> handleSuccess(RoutingContext context) {
 		return this.wxUserMapper.getWxUser("wxbf7f0a968c9d7f90", "ozYIb5EhFQDNuxjwfCFStOfFrHdY")
 			.compose(jsonObject -> {
-				Future<Void> future = Future.future();
 				JsonObject retData = new JsonObject();
 				context.request().params().forEach(entry -> retData.put(entry.getKey(), entry.getValue()));
 				context.request().formAttributes().forEach(entry -> retData.put(entry.getKey(), entry.getValue()));
@@ -43,8 +42,7 @@ public class TestHandler extends BaseRouteV2Handler {
 					context.getBodyAsJson().getMap().forEach(retData::put);
 				}
 				context.response().end(retData.put("userInfo", jsonObject).toBuffer());
-				future.complete();
-				return future;
+				return Future.succeededFuture();
 			});
 	}
 }

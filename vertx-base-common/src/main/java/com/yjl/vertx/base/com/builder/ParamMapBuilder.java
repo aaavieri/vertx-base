@@ -3,6 +3,7 @@ package com.yjl.vertx.base.com.builder;
 import com.yjl.vertx.base.com.anno.Param;
 import com.yjl.vertx.base.com.util.JsonUtil;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
+import io.vertx.core.MultiMap;
 import io.vertx.core.json.JsonObject;
 import lombok.Getter;
 
@@ -56,6 +57,11 @@ public class ParamMapBuilder {
 		map.entrySet().forEach(this::buildEntry);
 		return this;
 	}
+	
+	public ParamMapBuilder buildMultiMap(MultiMap multiMap) {
+	    multiMap.forEach(entry -> this.buildItem(entry.getKey(), entry.getValue()));
+	    return this;
+    }
 
 	public ParamMapBuilder buildEntry(Map.Entry<String, Object> entry) {
 		return this.buildItem(entry.getKey(), entry.getValue());

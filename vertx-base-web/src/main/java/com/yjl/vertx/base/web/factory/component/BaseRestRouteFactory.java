@@ -7,6 +7,7 @@ import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -20,6 +21,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactory {
 
@@ -53,11 +56,16 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 	protected abstract List<HandlerWrapper> getHandlerWrapperList();
 
 	protected void bindOneRoute(final HandlerWrapper handlerWrapper) {
-		String methodName = handlerWrapper.method().name().toLowerCase() + (handlerWrapper.regexp() ? "WithRegex" : "");
+//		String methodName = (handlerWrapper.method() == null ? "route" : handlerWrapper.method().name().toLowerCase())
+//            + (handlerWrapper.regexp() ? "WithRegex" : "");
 		try {
-			MethodHandle methodHandle = MethodHandles.publicLookup().findVirtual(this.router.getClass(), methodName, MethodType.methodType(Route.class, String.class));
-			Route route = ReflectionsUtil.autoCast(methodHandle.invoke(this.router, handlerWrapper.url()));
-			this.getLogger().info("bind {} to {}#{}", handlerWrapper.url(), handlerWrapper.handlerClass().getName(), handlerWrapper.handlerMethod());
+//			MethodHandle methodHandle = MethodHandles.publicLookup().findVirtual(this.router.getClass(), methodName, MethodType.methodType(Route.class, String.class));
+//			Route route = ReflectionsUtil.<Route>autoCast(methodHandle.invoke(this.router.rou, handlerWrapper.url())).order(handlerWrapper.order());
+            Function<String, Route> noMethodFunction = handlerWrapper.regexp() ? this.router::routeWithRegex : this.router::route;
+            BiFunction<HttpMethod, String, Route> methodFunction = handlerWrapper.regexp() ? this.router::routeWithRegex : this.router::route;
+            Route route = handlerWrapper.method() == null
+                ? noMethodFunction.apply(handlerWrapper.url()) : methodFunction.apply(handlerWrapper.method(), handlerWrapper.url());
+            this.getLogger().info("bind {} to {}#{}", handlerWrapper.url(), handlerWrapper.handlerClass().getName(), handlerWrapper.handlerMethod());
 			route.handler(handlerWrapper.handler());
 			if (handlerWrapper.autoHandleError()) {
 				route.failureHandler(this.defaultFailureHandler);
