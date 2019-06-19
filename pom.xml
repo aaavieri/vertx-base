@@ -19,6 +19,7 @@
         <module>vertx-base-autoroute</module>
         <module>vertx-base-auth</module>
         <module>vertx-base-auth-usi</module>
+        <module>vertx-base-redis</module>
     </modules>
 
 

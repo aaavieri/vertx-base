@@ -1,5 +1,6 @@
 package com.yjl.vertx.base.com.factory.component;
 
+import com.yjl.vertx.base.com.component.ComponentScanner;
 import com.yjl.vertx.base.com.factory.config.ConfigFactory;
 import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import io.vertx.core.Vertx;
@@ -20,6 +21,7 @@ public class VertxResourceFactory extends BaseComponentFactory {
 		this.bind(Vertx.class).toInstance(this.vertx);
 		this.bind(JsonObject.class).annotatedWith(ConfigFactory.getConfig("")).toInstance(this.config);
 		this.bind(JsonObject.class).annotatedWith(ConfigFactory.getConfig(".")).toInstance(this.config);
+		this.bind(ComponentScanner.class).asEagerSingleton();;
 		this.bindConfig("", this.config);
 	}
 

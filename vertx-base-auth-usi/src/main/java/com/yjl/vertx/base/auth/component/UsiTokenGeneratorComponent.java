@@ -5,6 +5,7 @@ import com.yjl.vertx.base.auth.dto.AuthenticationResult;
 import com.yjl.vertx.base.com.anno.component.Config;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.web.RoutingContext;
 
@@ -24,7 +25,9 @@ public class UsiTokenGeneratorComponent implements AuthenticationCompleteListene
     public Future<Void> authenticateComplete(RoutingContext context, AuthenticationResult result) {
         Future<Void> future = Future.future();
         this.vertx.executeBlocking(Void -> {
-            String token = this.jwtAuth.generateToken(result.userInfo());
+            JsonObject tokenJson = new JsonObject().mergeIn(result.userInfo(), true);
+            tokenJson.remove("userMenus");
+            String token = this.jwtAuth.generateToken(tokenJson);
             context.response().putHeader(this.tokenHeaderName, token);
         }, asyncResult -> {
             if (asyncResult.succeeded()) {

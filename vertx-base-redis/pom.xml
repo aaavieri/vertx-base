@@ -9,23 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vertx-base-auth-usi</artifactId>
+    <artifactId>vertx-base-redis</artifactId>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-auth</artifactId>
-            <version>${vertx-base.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-dao</artifactId>
-            <version>${vertx-base.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yjl</groupId>
-            <artifactId>vertx-base-redis</artifactId>
+            <artifactId>vertx-base-common</artifactId>
             <version>${vertx-base.version}</version>
         </dependency>
         <dependency>
@@ -34,4 +23,5 @@
             <version>${vertx.version}</version>
         </dependency>
     </dependencies>
+
 </project>

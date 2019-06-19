@@ -18,6 +18,11 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.PubSecKeyOptions;
+import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
+import io.vertx.ext.jwt.JWTOptions;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -41,7 +46,26 @@ import java.util.Map;
 public class TestInitVerticle extends InitVerticle {
 
 	protected void afterInit(Injector context) {
-	}
+        JWTAuth provider = JWTAuth.create(vertx, new JWTAuthOptions().setJWTOptions(new JWTOptions()
+            .setExpiresInSeconds(3).setNoTimestamp(true))
+            );
+        String token = provider.generateToken(new JsonObject().put("userInfo", "aaavieri"));
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        provider.authenticate(new JsonObject().put("jwt", token), res -> {
+            if (res.succeeded()) {
+                User theUser = res.result();
+                System.out.println(theUser.principal());
+            } else {
+                // Failed!
+                res.cause().printStackTrace();
+            }
+        });
+        
+    }
 
 	public static void main(String[] args) throws NoSuchFieldException {
 //		ComponentInitializer initializer1 = Stream.of(AutoRouteDaoFactory.class.getAnnotationsByType(ComponentInitializer.class))

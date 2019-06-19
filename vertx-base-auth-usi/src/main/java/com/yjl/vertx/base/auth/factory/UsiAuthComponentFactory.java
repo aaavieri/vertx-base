@@ -6,14 +6,12 @@ import com.google.inject.name.Named;
 import com.yjl.vertx.base.auth.component.*;
 import com.yjl.vertx.base.auth.mapper.AccountMapper;
 import com.yjl.vertx.base.auth.mapper.MenuInfoMapper;
-import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.com.generator.ProxyGeneratorIf;
 
 import java.util.stream.Stream;
 
-@ComponentInitializer(factoryClass = PublicKeyJwtAuthProviderFactory.class)
-public class UsIAuthComponentFactory extends BaseAnnotationComponentFactory {
+public class UsiAuthComponentFactory extends BaseAnnotationComponentFactory {
     
     @Inject
     @Named("defaultDaoGenerator")

@@ -40,6 +40,7 @@ public class UsiAuthenticationComponent implements AuthenticationComponentIf {
                     throw new FrameworkException().message("expired password").errCode(-1);
                 }
                 if (userInfo.getString("password").equals(params.getString("password"))) {
+                    userInfo.remove("password");
                     authenticationResult.result(true).userInfo(userInfo);
                 } else {
                     authenticationResult.result(false);

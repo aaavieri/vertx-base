@@ -9,4 +9,6 @@ import lombok.experimental.Accessors;
 public class AuthenticationResult {
     private boolean result;
     private JsonObject userInfo;
+    private int resCd;
+    private String message;
 }
