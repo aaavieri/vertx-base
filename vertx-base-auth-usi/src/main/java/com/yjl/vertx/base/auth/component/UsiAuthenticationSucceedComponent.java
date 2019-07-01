@@ -29,19 +29,20 @@ public class UsiAuthenticationSucceedComponent implements AuthenticationComplete
     public Future<Void> authenticateComplete(RoutingContext context, AuthenticationResult result) {
         JsonObject retUserInfo = new JsonObject().mergeIn(result.userInfo(), true);
         retUserInfo.remove("password");
-        context.response().write(retUserInfo.toBuffer());
         if (result.result()) {
 //        List<String> menus = retUserInfo.getJsonArray("userMenus").stream()
 //            .map(menu -> ReflectionsUtil.<JsonObject>autoCast(menu).getString("server_uri"))
 //            .collect(Collectors.toList());
             String redisData = new JsonObject().put("userMenus", retUserInfo.remove("userMenus"))
                 .put("lastAccessTime", System.currentTimeMillis()).toString();
+            context.response().write(retUserInfo.toBuffer());
             JsonObject tokenJson = new JsonObject().mergeIn(result.userInfo(), true);
             tokenJson.remove("userMenus");
             context.response().write(new JsonObject().put(this.tokenHeaderName, this.jwtAuth.generateToken(tokenJson)).toBuffer());
             return this.redisFutureComponent.hsetnx(this.redisKey, retUserInfo.getString("account"), redisData)
                 .compose(response -> Future.succeededFuture());
         } else {
+            context.response().write(retUserInfo.toBuffer());
             return Future.succeededFuture();
         }
     }

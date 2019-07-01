@@ -62,7 +62,8 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
             Route route = handlerWrapper.method() == null
                 ? noMethodFunction.apply(handlerWrapper.url()) : methodFunction.apply(handlerWrapper.method(), handlerWrapper.url());
             this.getLogger().info("bind {} to {}#{}", handlerWrapper.url(), handlerWrapper.handlerClass().getName(), handlerWrapper.handlerMethod());
-			route.handler(handlerWrapper.handler());
+//			route.order(handlerWrapper.order()).handler(handlerWrapper.handler());
+            route.handler(handlerWrapper.handler());
 			if (handlerWrapper.autoHandleError()) {
 				route.failureHandler(this.defaultFailureHandler);
 			}
