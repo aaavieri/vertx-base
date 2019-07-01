@@ -7,7 +7,7 @@
     "port": 3306,
     "username": "root",
     "password": "yinjiaolong",
-    "database": "wwx",
+    "database": "db_brood_sentry",
     "charset": "UTF8"
   },
   "auth": {

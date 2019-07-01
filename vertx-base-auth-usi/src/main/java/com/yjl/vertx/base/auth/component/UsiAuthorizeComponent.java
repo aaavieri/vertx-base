@@ -3,6 +3,7 @@ package com.yjl.vertx.base.auth.component;
 import com.google.inject.Inject;
 import com.yjl.vertx.base.auth.dto.AuthorizeResult;
 import com.yjl.vertx.base.com.anno.component.Config;
+import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.redis.component.RedisFutureComponent;
 import io.vertx.core.Future;
@@ -77,7 +78,7 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
                         .setHandler(responseAsyncResult2 -> {});
                 }
                 boolean authorize = resData.getJsonArray("userMenus", new JsonArray()).stream()
-                    .map(String::valueOf).anyMatch(menu -> this.matchServerUri(menu, url));
+                    .map(ReflectionsUtil::<JsonObject>autoCast).anyMatch(menu -> this.matchServerUri(menu, url));
                 future.complete(new AuthorizeResult().result(authorize).resCd(authorize ? 1 : -3));
             });
         });
@@ -89,8 +90,11 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
 //        return future;
     }
     
-    private boolean matchServerUri(String serverUri, String url) {
-        String nvlServerUri = StringUtil.nvl(serverUri).trim();
+    private boolean matchServerUri(JsonObject serverInfo, String url) {
+        if (serverInfo.getInteger("require_auth", 0) != 1) {
+            return true;
+        }
+        String nvlServerUri = StringUtil.nvl(serverInfo.getString("server_uri")).trim();
         if (nvlServerUri.contains("**")) {
             nvlServerUri = nvlServerUri.replaceAll("\\*\\*", "\\.\\+");
             return Pattern.matches(nvlServerUri, url);

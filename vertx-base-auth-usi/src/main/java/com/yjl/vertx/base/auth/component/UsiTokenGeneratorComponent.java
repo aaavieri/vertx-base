@@ -24,11 +24,15 @@ public class UsiTokenGeneratorComponent implements AuthenticationCompleteListene
     @Override
     public Future<Void> authenticateComplete(RoutingContext context, AuthenticationResult result) {
         Future<Void> future = Future.future();
-        this.vertx.executeBlocking(Void -> {
-            JsonObject tokenJson = new JsonObject().mergeIn(result.userInfo(), true);
-            tokenJson.remove("userMenus");
-            String token = this.jwtAuth.generateToken(tokenJson);
-            context.response().putHeader(this.tokenHeaderName, token);
+        this.vertx.<Void>executeBlocking(futureParam -> {
+            if (result.result()) {
+                JsonObject tokenJson = new JsonObject().mergeIn(result.userInfo(), true);
+                tokenJson.remove("userMenus");
+                context.response().putHeader(this.tokenHeaderName, this.jwtAuth.generateToken(tokenJson));
+            } else {
+                context.response().headers().remove(this.tokenHeaderName);
+            }
+            futureParam.complete();
         }, asyncResult -> {
             if (asyncResult.succeeded()) {
                 future.complete();

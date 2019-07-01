@@ -49,6 +49,7 @@ public abstract class AuthenticatorFactory extends BaseRestRouteFactory {
         }
         JsonObject headers = JsonObject.mapFrom(new ParamMapBuilder().buildMultiMap(context.request().headers()).getParamMap());
         JsonObject params = ContextUtil.getAllParams(context);
+        context.response().setChunked(true);
         this.authenticationComponent.authenticate(headers, params)
             .compose(result -> CompositeFuture.all(
                 this.listenerSet.stream().map(listener -> listener.authenticateComplete(context, result)).collect(Collectors.toList())))

@@ -28,10 +28,10 @@ public class UsiAuthenticationComponent implements AuthenticationComponentIf {
                 if (userInfo == null) {
                     throw new FrameworkException().message("unknown user: " + params.getString("account"));
                 }
-                if (userInfo.getBoolean("locked")) {
+                if (userInfo.getInteger("locked", 0) == 1) {
                     throw new FrameworkException().message("user was locked: " + params.getString("account"));
                 }
-                if (userInfo.getBoolean("next_login_change_pwd")) {
+                if (userInfo.getInteger("next_login_change_pwd", 0) == 1) {
                     throw new FrameworkException().message("you should change your password").errCode(-1);
                 }
                 String exceedDate = userInfo.getString("account_exceed_date");
@@ -43,7 +43,7 @@ public class UsiAuthenticationComponent implements AuthenticationComponentIf {
                     userInfo.remove("password");
                     authenticationResult.result(true).userInfo(userInfo);
                 } else {
-                    authenticationResult.result(false);
+                    authenticationResult.result(false).message("invalid password");
                 }
                 return Future.succeededFuture(authenticationResult);
             })

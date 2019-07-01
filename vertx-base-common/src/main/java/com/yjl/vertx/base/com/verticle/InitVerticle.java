@@ -20,7 +20,7 @@ public class InitVerticle extends AbstractVerticle {
 			ApplicationContext.getInstance().initContext(this);
 			this.afterInit(ApplicationContext.getInstance().getContext());
 			future.complete();
-		}, startFuture.completer());
+		}, Void -> startFuture.complete());
 	}
 
 	private Injector initInjector() {

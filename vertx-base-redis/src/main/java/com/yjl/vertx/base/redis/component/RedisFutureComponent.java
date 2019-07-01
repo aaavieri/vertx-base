@@ -16,6 +16,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RedisFutureComponent {
     
@@ -40,6 +42,10 @@ public class RedisFutureComponent {
     
     public Future<Response> hsetnx(String hashKey, String key, String value) {
         return this.executeCommand((redisAPI, asyncResultHandler) -> redisAPI.hsetnx(hashKey, key, value, asyncResultHandler));
+    }
+
+    public Future<Response> hdel(String hashKey, String key) {
+        return this.executeCommand((redisAPI, asyncResultHandler) -> redisAPI.hdel(Stream.of(hashKey, key).collect(Collectors.toList()), asyncResultHandler));
     }
     
     protected Future<Response> executeCommand(BiConsumer<RedisAPI, Handler<AsyncResult<Response>>> redisAPIConsumer) {
