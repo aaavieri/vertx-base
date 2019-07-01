@@ -8,7 +8,8 @@ import io.vertx.core.json.JsonObject;
 import java.util.List;
 
 public interface MenuInfoMapper {
-    @Select("select id, account, password, type, locked, next_login_change_pwd, pwd_no_exceed, account_exceed_date " +
-        "from st_account_info where false")
+    @Select("select mi.name, mi.server_uri, urr.role_logic_id " +
+        "from st_user_role_relation urr inner join st_role_menu_relation rmr on (urr.role_logic_id = rmr.role_logic_id) " +
+        "inner join st_menu_info mi on (rmr.menu_id = mi.id) where urr.account = #{account} and mi.enabled = true")
     Future<List<JsonObject>> selectUserMenus(@Param("account")final String account);
 }

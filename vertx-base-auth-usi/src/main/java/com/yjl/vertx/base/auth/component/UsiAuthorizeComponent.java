@@ -12,6 +12,8 @@ import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.redis.client.Response;
 
+import java.util.regex.Pattern;
+
 public class UsiAuthorizeComponent implements AuthorizeComponentIf {
     
     @Inject
@@ -75,7 +77,7 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
                         .setHandler(responseAsyncResult2 -> {});
                 }
                 boolean authorize = resData.getJsonArray("userMenus", new JsonArray()).stream()
-                    .map(String::valueOf).anyMatch(url::startsWith);
+                    .map(String::valueOf).anyMatch(menu -> this.matchServerUri(menu, url));
                 future.complete(new AuthorizeResult().result(authorize).resCd(authorize ? 1 : -3));
             });
         });
@@ -85,5 +87,15 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
 //                .getJsonArray("userMenus").stream().map(String::valueOf).anyMatch(url::startsWith))
 //        );
 //        return future;
+    }
+    
+    private boolean matchServerUri(String serverUri, String url) {
+        String nvlServerUri = StringUtil.nvl(serverUri).trim();
+        if (nvlServerUri.contains("**")) {
+            nvlServerUri = nvlServerUri.replaceAll("\\*\\*", "\\.\\+");
+            return Pattern.matches(nvlServerUri, url);
+        } else {
+            return nvlServerUri.trim().equals(url);
+        }
     }
 }
