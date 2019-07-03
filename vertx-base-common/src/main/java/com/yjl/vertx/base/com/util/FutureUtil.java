@@ -15,12 +15,16 @@ public class FutureUtil {
             IntStream.range(0, compositeFuture.size()).filter(compositeFuture::failed).mapToObj(compositeFuture::cause)
                 .forEach(causeConsumer);
         }
-        Future<T> future = Future.future();
         if (compositeFuture.failed()) {
-            future.fail(compositeFuture.cause());
+            return Future.failedFuture(compositeFuture.cause());
         } else {
-            future.complete(result);
+            return Future.succeededFuture(result);
         }
+    }
+
+    public static <T> Future<T> consumer2Future(Consumer<Future<T>> consumer) {
+        Future<T> future = Future.future();
+        consumer.accept(future);
         return future;
     }
 }

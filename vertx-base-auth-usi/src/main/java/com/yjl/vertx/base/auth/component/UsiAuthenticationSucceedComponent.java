@@ -38,7 +38,7 @@ public class UsiAuthenticationSucceedComponent implements AuthenticationComplete
             JsonObject tokenJson = new JsonObject().mergeIn(result.userInfo(), true);
             tokenJson.remove("userMenus");
             context.response().write(retUserInfo.put(this.tokenHeaderName, this.jwtAuth.generateToken(tokenJson)).toBuffer());
-            return this.redisFutureComponent.hsetnx(this.redisKey, retUserInfo.getString("account"), redisData)
+            return this.redisFutureComponent.hset(this.redisKey, retUserInfo.getString("account"), redisData)
                 .compose(response -> Future.succeededFuture());
         } else {
             context.response().write(retUserInfo.toBuffer());

@@ -63,6 +63,7 @@ public class TestInitVerticle extends InitVerticle {
     }
 
 	public static void main(String[] args) throws NoSuchFieldException {
+        System.out.println(Integer.MAX_VALUE + 10);
 //		ComponentInitializer initializer1 = Stream.of(AutoRouteDaoFactory.class.getAnnotationsByType(ComponentInitializer.class))
 ////			.filter(initializer -> initializer.factoryClass().equals(DaoAdaptorFactory.class))
 ////			.findFirst().get();
