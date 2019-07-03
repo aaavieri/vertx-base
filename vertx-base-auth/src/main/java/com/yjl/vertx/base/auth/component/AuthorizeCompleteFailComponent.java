@@ -10,7 +10,7 @@ public class AuthorizeCompleteFailComponent implements AuthorizeCompleteListener
     @Override
     public Future<Void> authorizeComplete(RoutingContext context, AuthorizeResult result) {
         if (!result.result()) {
-            return Future.failedFuture(new FrameworkException().message("authorize failed").errCode(-1));
+            return Future.failedFuture(new FrameworkException().message("authorize failed").errCode(result.resCd()));
         } else {
             return Future.succeededFuture();
         }

@@ -6,7 +6,7 @@ import com.yjl.vertx.base.auth.component.AuthorizeComponentIf;
 import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.builder.ParamMapBuilder;
 import com.yjl.vertx.base.com.util.FutureUtil;
-import com.yjl.vertx.base.web.factory.component.BaseRestRouteFactory;
+import com.yjl.vertx.base.web.factory.component.SpecifiedOrderRestRouteFactory;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
 import com.yjl.vertx.base.web.util.ContextUtil;
 import io.vertx.core.CompositeFuture;
@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AuthorizerFactory extends BaseRestRouteFactory {
+public abstract class AuthorizerFactory extends SpecifiedOrderRestRouteFactory {
     
     @Inject(optional = true)
     @Config("auth.skipUrls")
@@ -41,7 +41,7 @@ public abstract class AuthorizerFactory extends BaseRestRouteFactory {
     protected List<HandlerWrapper> getHandlerWrapperList() {
         return Stream.of(new HandlerWrapper().handler(this::doAuthorize).descript("auth").autoHandleError(true)
             .handlerClass(this.getClass()).handlerMethod("doAuthorize").method(null).url(".*")
-            .order(-10).regexp(true)).collect(Collectors.toList());
+            .order(-1).regexp(true)).collect(Collectors.toList());
     }
     
     protected void doAuthorize(RoutingContext context) {

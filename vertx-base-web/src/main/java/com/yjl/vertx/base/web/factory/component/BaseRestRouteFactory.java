@@ -2,6 +2,7 @@ package com.yjl.vertx.base.web.factory.component;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.factory.component.BaseAnnotationComponentFactory;
 import com.yjl.vertx.base.web.handler.HandlerWrapper;
@@ -19,12 +20,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactory {
 
 	@Inject
 	@Named("defaultFailureHandler")
 	private Handler<RoutingContext> defaultFailureHandler;
+
+	@Inject(optional = true)
+    @Config("app.route.minOrder")
+    protected int minRouteOrder = 10;
 
 	@Inject
 	protected Router router;
@@ -62,8 +68,8 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
             Route route = handlerWrapper.method() == null
                 ? noMethodFunction.apply(handlerWrapper.url()) : methodFunction.apply(handlerWrapper.method(), handlerWrapper.url());
             this.getLogger().info("bind {} to {}#{}", handlerWrapper.url(), handlerWrapper.handlerClass().getName(), handlerWrapper.handlerMethod());
-//			route.order(handlerWrapper.order()).handler(handlerWrapper.handler());
-            route.handler(handlerWrapper.handler());
+			route.order(this.calcOrder(handlerWrapper.order())).handler(handlerWrapper.handler());
+//            route.handler(handlerWrapper.handler());
 			if (handlerWrapper.autoHandleError()) {
 				route.failureHandler(this.defaultFailureHandler);
 			}
@@ -72,4 +78,8 @@ public abstract class BaseRestRouteFactory extends BaseAnnotationComponentFactor
 			throw new FrameworkException(throwable);
 		}
 	}
+
+	protected int calcOrder(int order) {
+	    return Integer.max(Integer.max(order + this.minRouteOrder, this.minRouteOrder), order);
+    }
 }

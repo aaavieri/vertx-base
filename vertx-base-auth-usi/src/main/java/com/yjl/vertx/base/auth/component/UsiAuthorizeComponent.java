@@ -12,6 +12,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.redis.client.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -34,6 +36,8 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
     
     @Inject
     private RedisFutureComponent redisFutureComponent;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     
     @Override
     public Future<AuthorizeResult> authorize(String url, JsonObject headers, JsonObject params) {
@@ -54,6 +58,7 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
 //        );
         userFuture.setHandler(userAsyncResult -> {
             if (userAsyncResult.failed()) {
+                this.logger.warn("token authenticate failure: {}", userAsyncResult.cause());
                 future.complete(new AuthorizeResult().result(false).resCd(-5));
                 return;
             }

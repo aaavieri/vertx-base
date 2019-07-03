@@ -1,6 +1,9 @@
 {
   "app": {
-    "port": 4103
+    "port": 4103,
+    "route": {
+      "minOrder": 3
+    }
   },
   "databaseConfig": {
     "host": "localhost",
