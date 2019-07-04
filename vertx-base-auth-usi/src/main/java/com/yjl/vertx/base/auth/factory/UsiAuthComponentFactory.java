@@ -28,7 +28,7 @@ public class UsiAuthComponentFactory extends BaseAnnotationComponentFactory {
             .peek(clazz -> this.bind(clazz).asEagerSingleton())
             .forEach(clazz -> authenticationBinder.addBinding().to(clazz));
         Multibinder<AuthorizeCompleteListener> authorizeBinder = Multibinder.newSetBinder(this.binder(), AuthorizeCompleteListener.class);
-        Stream.of(AuthorizeCompleteFailComponent.class)
+        Stream.of(UsiAuthorizeCompleteFailComponent.class)
             .peek(clazz -> this.bind(clazz).asEagerSingleton())
             .forEach(clazz -> authorizeBinder.addBinding().to(clazz));
     }

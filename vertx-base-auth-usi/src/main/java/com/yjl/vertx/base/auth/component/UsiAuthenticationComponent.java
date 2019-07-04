@@ -41,17 +41,17 @@ public class UsiAuthenticationComponent implements AuthenticationComponentIf {
                 }
                 if (userInfo.getString("password").equals(params.getString("password"))) {
                     userInfo.remove("password");
-                    authenticationResult.result(true).userInfo(userInfo);
+                    authenticationResult.setSuccess(true).setUserInfo(userInfo);
                 } else {
-                    authenticationResult.result(false).message("invalid password");
+                    authenticationResult.setSuccess(false).setMessage("invalid password");
                 }
                 return Future.succeededFuture(authenticationResult);
             })
             .compose(result -> {
-                if (result.result()) {
+                if (result.isSuccess()) {
                     return this.menuInfoMapper.selectUserMenus(params.getString("account"))
                         .compose(menus -> {
-                            result.userInfo().put("userMenus", menus);
+                            result.getUserInfo().put("userMenus", menus);
                             return Future.succeededFuture(result);
                         });
                 } else {

@@ -43,7 +43,7 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
         Future<AuthorizeResult> future = Future.future();
         String token = headers.getString(this.tokenHeaderName);
         if (StringUtil.isBlank(token)) {
-            return Future.succeededFuture(new AuthorizeResult().result(false).resCd(-5));
+            return Future.succeededFuture(new AuthorizeResult().setSuccess(false).setResCd(-5));
         }
         Map<String, String> tempMap = new HashMap<>();
         return FutureUtil.<User>consumer2Future(tokenFuture -> this.jwtAuth.authenticate(new JsonObject().put("jwt", token), tokenFuture))
@@ -54,17 +54,17 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
             })
             .compose(response -> {
                 if (response == null) {
-                    future.complete(new AuthorizeResult().result(false).resCd(-4));
+                    future.complete(new AuthorizeResult().setSuccess(false).setResCd(-4));
                     return;
                 }
                 Buffer buffer = response.toBuffer();
                 if (buffer.length() == 0) {
-                    future.complete(new AuthorizeResult().result(false).resCd(-4));
+                    future.complete(new AuthorizeResult().setSuccess(false).setResCd(-4));
                     return;
                 }
                 JsonObject resData = buffer.toJsonObject();
                 if (resData.getLong("lastAccessTime", 0L) + this.expired * 1000 < System.currentTimeMillis()) {
-                    future.complete(new AuthorizeResult().result(false).resCd(-1));
+                    future.complete(new AuthorizeResult().setSuccess(false).setResCd(-1));
                     return;
                 } else {
                     resData.put("lastAccessTime", System.currentTimeMillis());
@@ -73,7 +73,7 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
                 }
                 boolean authorize = resData.getJsonArray("userMenus", new JsonArray()).stream()
                     .map(ReflectionsUtil::<JsonObject>autoCast).anyMatch(menu -> this.matchServerUri(menu, url));
-                future.complete(new AuthorizeResult().result(authorize).resCd(authorize ? 1 : -3));
+                future.complete(new AuthorizeResult().setSuccess(authorize).setResCd(authorize ? 1 : -3));
             }, future);
 //            asyncResult -> {
 //                if (asyncResult.failed()) {
