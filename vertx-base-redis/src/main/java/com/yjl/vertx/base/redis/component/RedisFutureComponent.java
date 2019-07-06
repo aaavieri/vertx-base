@@ -13,8 +13,6 @@ import io.vertx.redis.client.Redis;
 import io.vertx.redis.client.RedisAPI;
 import io.vertx.redis.client.RedisOptions;
 import io.vertx.redis.client.Response;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;
@@ -79,12 +77,5 @@ public class RedisFutureComponent {
         RedisOptions redisOptions = new RedisOptions().setEndpoint(SocketAddress.inetSocketAddress
             (this.redisPort, this.redisHost));
         return StringUtil.isBlank(this.redisPassword) ? redisOptions : redisOptions.setPassword(this.redisPassword);
-    }
-    
-    @Data
-    @Accessors(fluent = true)
-    static class RedisFutureData {
-        private Handler<AsyncResult<Redis>> handler;
-        private Future<Response> future;
     }
 }

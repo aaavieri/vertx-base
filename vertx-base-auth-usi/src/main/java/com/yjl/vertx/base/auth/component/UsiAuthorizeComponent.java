@@ -68,7 +68,7 @@ public class UsiAuthorizeComponent implements AuthorizeComponentIf {
                     return;
                 } else {
                     resData.put("lastAccessTime", System.currentTimeMillis());
-                    this.redisFutureComponent.hsetnx(this.redisKey, tempMap.get("account"), resData.toString())
+                    this.redisFutureComponent.hset(this.redisKey, tempMap.get("account"), resData.toString())
                         .setHandler(responseAsyncResult2 -> {});
                 }
                 boolean authorize = resData.getJsonArray("userMenus", new JsonArray()).stream()
