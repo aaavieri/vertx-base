@@ -6,6 +6,7 @@ import com.yjl.vertx.base.com.anno.initializer.FirstClassComponent;
 import com.yjl.vertx.base.com.factory.component.BaseComponentFactory;
 import com.yjl.vertx.base.com.factory.component.SimpleSlf4jLogbackFactory;
 import com.yjl.vertx.base.com.factory.component.VertxResourceFactory;
+import com.yjl.vertx.base.com.util.FutureUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
@@ -16,11 +17,16 @@ public class InitVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) throws Exception {
 		super.start();
 		System.out.println(Thread.currentThread().getName());
-		vertx.executeBlocking(future -> {
-			ApplicationContext.getInstance().initContext(this);
+//		vertx.executeBlocking(future -> {
+//			ApplicationContext.getInstance().initContext(this);
+//			this.afterInit(ApplicationContext.getInstance().getContext());
+//			future.complete();
+//		}, Void -> startFuture.complete());
+        FutureUtil.blockCode(vertx, startFuture, () -> {
+            ApplicationContext.getInstance().initContext(this);
 			this.afterInit(ApplicationContext.getInstance().getContext());
-			future.complete();
-		}, startFuture.completer());
+			return null;
+        });
 	}
 
 	private Injector initInjector() {

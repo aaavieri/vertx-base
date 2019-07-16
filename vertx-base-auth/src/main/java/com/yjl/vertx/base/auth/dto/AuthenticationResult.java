@@ -4,10 +4,10 @@ import io.vertx.core.json.JsonObject;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Accessors(fluent = true)
+@Accessors(chain = true)
 @Data
 public class AuthenticationResult {
-    private boolean result;
+    private boolean success;
     private JsonObject userInfo;
     private int resCd;
     private String message;
