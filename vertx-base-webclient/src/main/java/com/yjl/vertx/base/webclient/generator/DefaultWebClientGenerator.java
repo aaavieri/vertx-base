@@ -13,6 +13,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 
+import javax.inject.Named;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Map;
@@ -21,17 +22,13 @@ public class DefaultWebClientGenerator implements ProxyGeneratorIf {
     
     @Inject
     private WebClientContextCache webClientContextCache;
-
-    @Inject
-    @Config(".extend")
-    private JsonObject config;
     
     public <T> T getProxyInstance(Class<T> clientIf) {
         InvocationHandler invocationHandler = (proxy, method, args) -> {
             WebClientContext webClientContext = this.webClientContextCache.getContext(method);
         
             Map<String, Object> paramMap = new ParamMapBuilder().buildMethodCall(method, args).getParamMap();
-            HttpRequest<Buffer> httpRequest = webClientContext.initRequest(paramMap, config);
+            HttpRequest<Buffer> httpRequest = webClientContext.initRequest(paramMap);
             return webClientContext.requestExecutor().execute(httpRequest, method, paramMap)
                 .compose(bufferHttpResponse -> {
                     Future<Object> future = Future.future();

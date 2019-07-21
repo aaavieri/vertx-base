@@ -1,5 +1,7 @@
 package com.yjl.vertx.base.com.factory.component;
 
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.yjl.vertx.base.com.component.ComponentScanner;
 import com.yjl.vertx.base.com.factory.config.ConfigFactory;
 import com.yjl.vertx.base.com.util.JsonUtil;
@@ -8,6 +10,11 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 @Accessors(fluent = true)
 @Data
@@ -28,6 +35,20 @@ public class VertxResourceFactory extends BaseComponentFactory {
         extendJsonObject.forEach(entry -> this.bind(entry.getValue().getClass())
             .annotatedWith(ConfigFactory.getConfig(entry.getKey()))
             .toInstance(ReflectionsUtil.autoCast(entry.getValue())));
+        this.bind(TypeLiteral.get(new ParameterizedType() {
+            @Override
+            public Type[] getActualTypeArguments() {
+                return new Type[] {String.class, String.class};
+            }
+            @Override
+            public Type getRawType() {
+                return Map.class;
+            }
+            @Override
+            public Type getOwnerType() {
+                return null;
+            }
+        })).annotatedWith(Names.named("env")).toInstance(ReflectionsUtil.autoCast(new HashMap<>(System.getenv())));
 //		this.bindConfig("", this.config);
 	}
 

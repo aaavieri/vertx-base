@@ -1,5 +1,6 @@
 package com.yjl.vertx.base.webclient.context;
 
+import com.yjl.vertx.base.com.util.ReflectionsUtil;
 import com.yjl.vertx.base.com.util.StringUtil;
 import com.yjl.vertx.base.webclient.adaptor.AbstractResponseAdaptor;
 import com.yjl.vertx.base.webclient.anno.component.RequestClient;
@@ -22,6 +23,10 @@ public class WebClientContext {
 
 	private WebClient webClient;
 
+	private JsonObject extendConfig;
+
+	private Map<String, String> env;
+
 	private Method method;
 
 	private AbstractResponseAdaptor<Buffer> responseAdaptor;
@@ -35,18 +40,25 @@ public class WebClientContext {
 	private ClientInstanceInitLevel initLevel;
 
 	public WebClientContext copy() {
-		return new WebClientContext().method(this.method).requestExecutor(this.requestExecutor).responseAdaptor(this.responseAdaptor)
+		return new WebClientContext().method(this.method).extendConfig(this.extendConfig).env(this.env)
+            .requestExecutor(this.requestExecutor).responseAdaptor(this.responseAdaptor)
 			.requestClient(this.requestClient).request(this.request).initLevel(this.initLevel);
 	}
 
-	public HttpRequest<Buffer> initRequest(Map<String, Object> paramMap, JsonObject config) {
-        String path = StringUtil.replaceParam(this.request.path(), config);
-		path = StringUtil.replaceParam(path, paramMap);
-		if (!path.startsWith("/")) {
-			path = "/" + path;
-		}
+	public HttpRequest<Buffer> initRequest(Map<String, Object> paramMap) {
+        String path = this.replaceConfigAndEnv(this.request.path());
+        path = StringUtil.replaceParam(path, paramMap);
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        String host = this.replaceConfigAndEnv(this.requestClient.host());
 		return this.webClient.request(this.request.method(),
-			this.requestClient.port(), this.requestClient.host(), path)
+			this.requestClient.port(), host, path)
 			.ssl(this.requestClient.ssl());
 	}
+
+	private String replaceConfigAndEnv(String originalPath) {
+        String path = StringUtil.replaceParam(originalPath, this.extendConfig);
+        return StringUtil.replaceParam(path, ReflectionsUtil.<Map<String, Object>>autoCast(env));
+    }
 }

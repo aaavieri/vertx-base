@@ -3,6 +3,7 @@ package com.yjl.vertx.base.webclient.factory;
 import com.google.inject.Inject;
 import com.yjl.vertx.base.autoroute.anno.AutoRouteIf;
 import com.yjl.vertx.base.autoroute.util.AutoRouteUtil;
+import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.anno.initializer.ComponentInitializer;
 import com.yjl.vertx.base.com.builder.ParamMapBuilder;
 import com.yjl.vertx.base.com.exception.FrameworkException;
@@ -22,6 +23,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 
+import javax.inject.Named;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -83,7 +83,7 @@ public class JsonUtil {
             String absoluteKey = parentKey + fieldName;
             extend.put(absoluteKey, value);
             if (value instanceof JsonObject) {
-                keyExtend[0].accept(absoluteKey, ReflectionsUtil.autoCast(value));
+                keyExtend[0].accept(absoluteKey + ".", ReflectionsUtil.autoCast(value));
             }
         });
         keyExtend[0].accept("", jsonObject);

@@ -16,6 +16,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 
+import javax.inject.Named;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Stream;
@@ -34,6 +35,14 @@ public class WebClientContextCache {
 
 	@Inject
 	private Set<AbstractResponseAdaptor> adaptorSet;
+
+    @Inject
+    @Config(".extend")
+    private JsonObject extendConfig;
+
+    @Inject
+    @Named("env")
+    private Map<String, String> env;
 
 	private WebClient globalWebClient = null;
 
@@ -99,7 +108,7 @@ public class WebClientContextCache {
 			throw new FrameworkException().message("method is not return io.vertx.core.Future<T>: " + clientIf.getName() + "#" + method.getName());
 		}
 		return new WebClientContext().method(method).request(request).requestClient(requestClient).initLevel(request.initLevel().equals(ClientInstanceInitLevel.INHERIT)
-			? requestClient.initLevel() : request.initLevel());
+			? requestClient.initLevel() : request.initLevel()).env(this.env).extendConfig(this.extendConfig);
 	}
 
 	private WebClient getWebClient(Method method, ClientInstanceInitLevel initLevel) {
