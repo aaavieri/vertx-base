@@ -1,5 +1,7 @@
 package com.yjl.vertx.base.com.util;
 
+import io.vertx.core.json.JsonObject;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,6 +71,15 @@ public class StringUtil {
         String ret = str;
         while (matcher.find()) {
             ret = ret.replace(matcher.group(), String.valueOf(paramMap.get(matcher.group("name"))));
+        }
+        return ret;
+    }
+
+    public static String replaceParam(String str, JsonObject config) {
+        Matcher matcher = PARAM_PATTERN.matcher(str);
+        String ret = str;
+        while (matcher.find()) {
+            ret = ret.replace(matcher.group(), String.valueOf(config.getValue(matcher.group("name"), null)));
         }
         return ret;
     }

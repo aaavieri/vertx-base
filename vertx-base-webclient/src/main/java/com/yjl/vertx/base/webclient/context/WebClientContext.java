@@ -7,6 +7,7 @@ import com.yjl.vertx.base.webclient.anno.request.Request;
 import com.yjl.vertx.base.webclient.enumeration.ClientInstanceInitLevel;
 import com.yjl.vertx.base.webclient.executor.AbstractRequestExecutor;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.WebClient;
 import lombok.Data;
@@ -38,8 +39,9 @@ public class WebClientContext {
 			.requestClient(this.requestClient).request(this.request).initLevel(this.initLevel);
 	}
 
-	public HttpRequest<Buffer> initRequest(Map<String, Object> paramMap) {
-		String path = StringUtil.replaceParam(this.request.path(), paramMap);
+	public HttpRequest<Buffer> initRequest(Map<String, Object> paramMap, JsonObject config) {
+        String path = StringUtil.replaceParam(this.request.path(), config);
+		path = StringUtil.replaceParam(path, paramMap);
 		if (!path.startsWith("/")) {
 			path = "/" + path;
 		}

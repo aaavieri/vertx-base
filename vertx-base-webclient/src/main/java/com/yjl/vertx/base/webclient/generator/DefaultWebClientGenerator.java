@@ -1,6 +1,7 @@
 package com.yjl.vertx.base.webclient.generator;
 
 import com.google.inject.Inject;
+import com.yjl.vertx.base.com.anno.component.Config;
 import com.yjl.vertx.base.com.builder.ParamMapBuilder;
 import com.yjl.vertx.base.com.exception.FrameworkException;
 import com.yjl.vertx.base.com.generator.ProxyGeneratorIf;
@@ -9,6 +10,7 @@ import com.yjl.vertx.base.webclient.context.WebClientContext;
 import com.yjl.vertx.base.webclient.context.WebClientContextCache;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 
 import java.lang.reflect.InvocationHandler;
@@ -19,13 +21,17 @@ public class DefaultWebClientGenerator implements ProxyGeneratorIf {
     
     @Inject
     private WebClientContextCache webClientContextCache;
+
+    @Inject
+    @Config(".extend")
+    private JsonObject config;
     
     public <T> T getProxyInstance(Class<T> clientIf) {
         InvocationHandler invocationHandler = (proxy, method, args) -> {
             WebClientContext webClientContext = this.webClientContextCache.getContext(method);
         
             Map<String, Object> paramMap = new ParamMapBuilder().buildMethodCall(method, args).getParamMap();
-            HttpRequest<Buffer> httpRequest = webClientContext.initRequest(paramMap);
+            HttpRequest<Buffer> httpRequest = webClientContext.initRequest(paramMap, config);
             return webClientContext.requestExecutor().execute(httpRequest, method, paramMap)
                 .compose(bufferHttpResponse -> {
                     Future<Object> future = Future.future();

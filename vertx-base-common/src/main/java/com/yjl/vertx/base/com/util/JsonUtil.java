@@ -74,4 +74,19 @@ public class JsonUtil {
         });
 	    return to;
     }
+
+    public static JsonObject extendJsonObject(JsonObject jsonObject) {
+        JsonObject extend = new JsonObject();
+        BiConsumer<String, JsonObject>[] keyExtend = new BiConsumer[1];
+        keyExtend[0] = (parentKey, data) -> data.fieldNames().forEach(fieldName -> {
+            Object value = data.getValue(fieldName);
+            String absoluteKey = parentKey + fieldName;
+            extend.put(absoluteKey, value);
+            if (value instanceof JsonObject) {
+                keyExtend[0].accept(absoluteKey, ReflectionsUtil.autoCast(value));
+            }
+        });
+        keyExtend[0].accept("", jsonObject);
+        return extend;
+    }
 }
