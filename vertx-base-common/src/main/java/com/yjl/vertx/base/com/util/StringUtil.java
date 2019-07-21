@@ -70,7 +70,10 @@ public class StringUtil {
         Matcher matcher = PARAM_PATTERN.matcher(str);
         String ret = str;
         while (matcher.find()) {
-            ret = ret.replace(matcher.group(), String.valueOf(paramMap.get(matcher.group("name"))));
+            String paramName = matcher.group("name");
+            if (paramMap.containsKey(paramName)) {
+                ret = ret.replace(matcher.group(), String.valueOf(paramMap.get(paramName)));
+            }
         }
         return ret;
     }
@@ -79,7 +82,10 @@ public class StringUtil {
         Matcher matcher = PARAM_PATTERN.matcher(str);
         String ret = str;
         while (matcher.find()) {
-            ret = ret.replace(matcher.group(), String.valueOf(config.getValue(matcher.group("name"), null)));
+            String paramName = matcher.group("name");
+            if (config.containsKey(paramName)) {
+                ret = ret.replace(matcher.group(), String.valueOf(config.getValue(paramName)));
+            }
         }
         return ret;
     }
