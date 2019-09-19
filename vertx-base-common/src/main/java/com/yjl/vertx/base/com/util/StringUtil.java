@@ -3,8 +3,11 @@ package com.yjl.vertx.base.com.util;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -13,6 +16,14 @@ import java.util.stream.Stream;
  * @Description:
  */
 public class StringUtil {
+
+    // 随机字符串
+    private static final String INT = "0123456789";
+    private static final String LOWER_LETTER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String UPPER_LETTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String ALL_LETTER = LOWER_LETTER + UPPER_LETTER;
+
+    private static final Random RANDOM = new Random();
 
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(?<name>\\w+)\\}");
 
@@ -88,5 +99,25 @@ public class StringUtil {
             }
         }
         return ret;
+    }
+
+    public static String getRandomNumber(int length) {
+        return getRandomStr(length, INT);
+    }
+
+    public static String getRandomAlphabet(int length, boolean containUpper) {
+        return getRandomStr(length, INT + (containUpper ? ALL_LETTER : LOWER_LETTER));
+    }
+
+    public static String getRandomStr(int length, String dictionary) {
+        return IntStream.range(0, length).mapToObj(index -> {
+            int position = RANDOM.nextInt(dictionary.length());
+            return String.valueOf(dictionary.charAt(position));
+        }).reduce("", (result, element) -> result + element);
+    }
+
+    public static String getUUID(boolean containHyphen) {
+        String uuid = UUID.randomUUID().toString();
+        return containHyphen ? uuid : uuid.replaceAll("-", "");
     }
 }
