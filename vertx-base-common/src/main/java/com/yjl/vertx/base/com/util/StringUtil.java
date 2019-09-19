@@ -23,8 +23,6 @@ public class StringUtil {
     private static final String UPPER_LETTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String ALL_LETTER = LOWER_LETTER + UPPER_LETTER;
 
-    private static final Random RANDOM = new Random();
-
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(?<name>\\w+)\\}");
 
     public static boolean isBlank(String str) {
@@ -110,8 +108,9 @@ public class StringUtil {
     }
 
     public static String getRandomStr(int length, String dictionary) {
+        Random random = new Random();
         return IntStream.range(0, length).mapToObj(index -> {
-            int position = RANDOM.nextInt(dictionary.length());
+            int position = random.nextInt(dictionary.length());
             return String.valueOf(dictionary.charAt(position));
         }).reduce("", (result, element) -> result + element);
     }
