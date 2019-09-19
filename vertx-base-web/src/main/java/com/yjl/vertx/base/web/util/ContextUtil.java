@@ -1,6 +1,7 @@
 package com.yjl.vertx.base.web.util;
 
 import com.yjl.vertx.base.com.util.JsonUtil;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import lombok.AccessLevel;
@@ -56,5 +57,37 @@ public class ContextUtil {
             context.getBodyAsJson().getMap().forEach(retData::put);
         }
         return retData;
+    }
+
+    public static String getClientIp(RoutingContext context) {
+        HttpServerRequest request = context.request();
+        String ip;
+        ip = request.getHeader("x-forwarded-for");
+        if (isNullIp(ip)){
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (isNullIp(ip)){
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (isNullIp(ip)){
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (isNullIp(ip)){
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (isNullIp(ip)){
+            ip = request.remoteAddress().host();
+        }
+        if(ip.contains(",")){
+            ip=ip.split(",")[0];
+        }
+        if ("0.0.0.0.0.0.0.1".equals(ip) || "0.0.0.0.0.0.0.1%0".equals(ip)){
+            ip = "127.0.0.1";
+        }
+        return ip;
+    }
+
+    private static boolean isNullIp(final String ip){
+        return ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip);
     }
 }
